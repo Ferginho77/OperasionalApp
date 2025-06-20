@@ -14,25 +14,35 @@ class LoginController extends Controller
         return view('login');
     }
 
-      public function login(Request $request)
-{
-    $request->validate([
-        'username' => 'required',
-        'password' => 'required',
-    ]);
+    public function login(Request $request)
+    {
+       $request->validate([
+                                    'username' => ['required', 'regex:/^[a-zA-Z0-9_]{4,20}$/'],
+                                    'password' => ['required', 'min:3', 'max:20', 'regex:/^[a-zA-Z0-9_]{3,20}$/'],
+                                ]);
+        $user = User::where('username', $request->username)->first();
 
-    $user = User::where('username', $request->username)->first();
+        if ($user && Hash::check($request->password, $user->password)) {
+            Auth::login($user);
 
-    if ($user && Hash::check($request->password, $user->password)) {
-        Auth::login($user); // Gunakan Auth untuk login user
+            // Redirect berdasarkan role
+            if ($user->role === 'admin') {
+                return redirect('/dashboard');
+            } elseif ($user->role === 'owner') {
+                return redirect('/owner');
+            } else {
+                Auth::logout();
+                return redirect()->back()
+                    ->withErrors(['login' => 'Role tidak dikenali.'])
+                    ->withInput();
+            }
+        }
 
-        return redirect('/dashboard'); // arahkan ke halaman home
+        return redirect()->back()
+            ->withErrors(['login' => 'Username atau Password salah.'])
+            ->withInput();
     }
 
-    return redirect()->back()
-        ->withErrors(['login' => 'Username atau Password salah.'])
-        ->withInput();
-}
     public function logout(Request $request)
     {
         Auth::logout();

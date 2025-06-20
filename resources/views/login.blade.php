@@ -33,6 +33,7 @@
                                     <input
                                         class="form-control"
                                         id="username"
+                                        pattern="[a-zA-Z0-9_]{4,20}"
                                         value="{{ old('username') }}"
                                         type="text"
                                         name="username"
@@ -44,6 +45,7 @@
                                     <input
                                         class="form-control"
                                         id="password"
+                                        pattern="^[a-zA-Z0-9@#$%^&+=]{3,20}$" 
                                         type="password"
                                         name="password"
                                         placeholder="Password"
