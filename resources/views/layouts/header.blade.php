@@ -9,7 +9,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>@yield('title', 'Home')</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -22,7 +23,8 @@
       <div class="navbar-nav ms-auto">
         <a class="nav-link active" aria-current="page" href="/dashboard">Home</a>
         <a class="nav-link" href="/absensi">Absensi</a>
-        <a class="nav-link" href="#">Pengadaan</a>
+        <a class="nav-link" href="/manajemen">Manajemen</a>
+        <a class="nav-link" href="/jadwal">Jadwal Operator</a>
             <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Apakah Yakin Untuk Meninggalkan Aplikasi?')">
                 @csrf
                 <button class="nav-link text-danger" type="submit">Logout</button>
@@ -37,5 +39,7 @@
     </div>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 </body>
 </html>

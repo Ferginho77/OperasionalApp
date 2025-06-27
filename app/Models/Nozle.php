@@ -9,8 +9,18 @@ class Nozle extends Model
     protected $table = 'nozle';
 
     protected $fillable = [
-        'Nama',
-        'Pulau',
+        'NamaNozle',
+        'PulauId',
+        'SpbuId',
     ];
+
+     public function spbu()
+    {
+        return $this->belongsTo(SPBU::class, 'SpbuId', 'id');
+    }
+     public function pulau()
+    {
+        return $this->belongsTo(Pulau::class, 'PulauId', 'id');
+    }
 
 }

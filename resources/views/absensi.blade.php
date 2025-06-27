@@ -2,92 +2,99 @@
 
 @section('content')
 <div class="container">
-    <div class="card">
-        <div class="card-header">
-             <h3>Absen Masuk</h3>
-        </div>
-        <div class="card-body">
-            
-    <form action="{{ route('absensi.store') }}" method="POST">
-        @csrf
+    <div class="row align-items-center">
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h3>Absen Masuk</h3>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('absensi.store') }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="KaryawanId" class="form-label">Karyawan</label>
+                            <select name="KaryawanId" id="karyawanSelect" class="form-select">
+                                @foreach ($karyawan as $k)
+                                    <option value="{{ $k->id }}" data-totalizer="{{ $k->totalizerAkhirTerakhir->TotalizerAkhir ?? '0' }}">{{ $k->Nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="NozleId" class="form-label">Nozzle</label>
+                            <select name="NozleId" id="nozleSelect" class="form-select">
+                                @foreach ($nozle as $n)
+                                    <option value="{{ $n->id }}" data-pulau="{{ $n->pulau->NamaPulau ?? '' }}">
+                                        {{ $n->NamaNozle }} {{ $n->pulau->NamaPulau ?? '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-        <div class="mb-3">
-            <label for="KaryawanId" class="form-label">Karyawan</label>
-            <select name="KaryawanId" class="form-select">
-                @foreach ($karyawan as $k)
-                    <option value="{{ $k->id }}">{{ $k->Nama }}</option>
-                @endforeach
-            </select>
-        </div>
+                        <div class="mb-3">
+                            <label for="ProdukId" class="form-label">Produk</label>
+                            <select name="ProdukId" class="form-select">
+                                @foreach ($produk as $p)
+                                    <option value="{{ $p->id }}">{{ $p->NamaProduk }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-        <div class="mb-3">
-            <label for="NozleId" class="form-label">Nozzle</label>
-            <select name="NozleId" class="form-select">
-                @foreach ($nozle as $n)
-                    <option value="{{ $n->id }}">{{ $n->NamaNozle }} (Pulau {{ $n->Pulau }})</option>
-                @endforeach
-            </select>
-        </div>
+                        <div class="mb-3">
+                            <label for="Pulau" class="form-label">Pulau</label>
+                            <input type="text" name="Pulau" id="pulauInput" class="form-control" readonly value="">
+                        </div>
 
-        <div class="mb-3">
-            <label for="ProdukId" class="form-label">Produk</label>
-            <select name="ProdukId" class="form-select">
-                @foreach ($produk as $p)
-                    <option value="{{ $p->id }}">{{ $p->NamaProduk }}</option>
-                @endforeach
-            </select>
-        </div>
+                        <div class="mb-3">
+                            <label for="TotalizerAwal" class="form-label">Totalizer Awal</label>
+                            <input type="number" step="0.01" name="TotalizerAwal" id="TotalizerAwal" class="form-control" readonly>
+                        </div>
 
-        <div class="mb-3">
-            <label for="Pulau" class="form-label">Pulau</label>
-            <input type="text" name="Pulau" class="form-control">
+                        <button type="submit" class="btn btn-primary w-100">Absen Masuk</button>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        <div class="mb-3">
-            <label for="TotalizerAwal" class="form-label">Totalizer Awal</label>
-            <input type="number" step="0.01" name="TotalizerAwal" class="form-control">
-        </div>
-
-        <button type="submit" class="btn btn-primary">Absen Masuk</button>
-    </form>
+        <div  class="col-md-6 d-flex justify-content-center">
+            <img  class="img-fluid" src="/img/mesin.png" alt="Logo Mesin" style="max-width: 350px; max-height: 450px; object-fit: contain;">
         </div>
     </div>
 </div>
 
-<div class="container">
-    <h3>Absen Istirahat</h3>
-        <button type="submit" class="btn btn-warning"
-                     data-bs-toggle="modal"
-                     data-bs-target="#IstirahatModal"
-                     style="width: 100%;"
-                    >Absen Istirahat</button>
-</div>
-
-<div class="container">
-    <h3>Pindah Nozzle</h3>
-        <button type="submit" class="btn btn-info"
-                    data-bs-toggle="modal"
-                     data-bs-target="#PindahModal"
-                     style="width: 100%;"
-        >Pindah Nozzle</button>
-</div>
-
-<div class="container">
-    <h3>Kembali ke Nozzle Awal</h3>
-        <button type="submit" class="btn btn-success"
-                     data-bs-toggle="modal"
-                     data-bs-target="#KembaliModal"
-                     style="width: 100%;"
-        >Kembali ke Nozzle Awal</button>
-</div>
-
-<div class="container">
-    <h3>Absen Pulang</h3>
-        <button type="submit" class="btn btn-danger"
-                    data-bs-toggle="modal"
-                     data-bs-target="#PulangModal"
-                     style="width: 100%;"
-        >Absen Pulang</button>
+<div class="container mt-4">
+    <div class="row g-3">
+        <div class="col-md-3 col-6">
+            <h5 class="text-center mb-2">Absen Istirahat</h5>
+            <button type="button" class="btn btn-warning w-100"
+                data-bs-toggle="modal"
+                data-bs-target="#IstirahatModal">
+                Absen Istirahat
+            </button>
+        </div>
+        <div class="col-md-3 col-6">
+            <h5 class="text-center mb-2">Pindah Nozzle</h5>
+            <button type="button" class="btn btn-info w-100"
+                data-bs-toggle="modal"
+                data-bs-target="#PindahModal">
+                Pindah Nozzle
+            </button>
+        </div>
+        <div class="col-md-3 col-6">
+            <h5 class="text-center mb-2">Kembali ke Nozzle Awal</h5>
+            <button type="button" class="btn btn-success w-100"
+                data-bs-toggle="modal"
+                data-bs-target="#KembaliModal">
+                Kembali ke Nozzle Awal
+            </button>
+        </div>
+        <div class="col-md-3 col-6">
+            <h5 class="text-center mb-2">Absen Pulang</h5>
+            <button type="button" class="btn btn-danger w-100"
+                data-bs-toggle="modal"
+                data-bs-target="#PulangModal">
+                Absen Pulang
+            </button>
+        </div>
+    </div>
 </div>
 
 @include('modals.istirahat')
@@ -147,4 +154,39 @@
         </tbody>
     </table>
 </div>
+<script>
+  AOS.init();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nozleSelect = document.getElementById('nozleSelect');
+    const pulauInput = document.getElementById('pulauInput');
+
+    function updatePulau() {
+        const selectedOption = nozleSelect.options[nozleSelect.selectedIndex];
+        pulauInput.value = selectedOption.getAttribute('data-pulau') || '';
+    }
+
+    nozleSelect.addEventListener('change', updatePulau);
+
+    // Set pulau saat halaman pertama kali dimuat
+    updatePulau();
+});
+
+document.addEventListener('DOMContentLoaded', function(){
+    const karyawanSelect = document.getElementById('karyawanSelect');
+    const TotalizerInput = document.getElementById('TotalizerAwal');
+
+    function updateTotalizer() {
+        const selectedOption = karyawanSelect.options[karyawanSelect.selectedIndex];
+        TotalizerInput.value = selectedOption.getAttribute('data-totalizer') || '';
+    }
+
+    karyawanSelect.addEventListener('change', updateTotalizer);
+
+    // Set totalizer saat halaman pertama kali dimuat
+    updateTotalizer();
+});
+</script>
+
 @endsection

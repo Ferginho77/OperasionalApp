@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\JadwalOperatorController;
+use App\Http\Controllers\KehadiranController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ManajemenController;
 use App\Http\Controllers\OwnerController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AbsensiController;
@@ -32,7 +35,32 @@ Route::put('absensi/{id}/istirahat', [AbsensiController::class, 'istirahat'])->n
 Route::put('absensi/{id}/pindah', [AbsensiController::class, 'pindahNozle'])->name('absensi.pindah');
 Route::put('absensi/{id}/kembali', [AbsensiController::class, 'kembaliNozle'])->name('absensi.kembali');
 Route::put('absensi/{id}/pulang', [AbsensiController::class, 'pulang'])->name('absensi.pulang');
+Route::get('/absensi/totalizer-akhir', [AbsensiController::class, 'getTotalizerAkhir']);
 
 // Route Owner
 Route::get('/owner', [OwnerController::class, 'index'])->name('owner')->middleware('auth');
 Route::get('/absensiKaryawan', [OwnerController::class, 'ShowAbsen'])->name('absensi.karyawan')->middleware('auth');
+
+//Route Kehadiran
+Route::get('/kehadiran', [KehadiranController::class, 'index'])->name('kehadiran')->middleware('guest');
+
+// Satu halaman utama
+Route::get('/jadwal', [JadwalOperatorController::class, 'index'])->name('jadwal');
+
+// Aksi store & update di form yang sama
+Route::post('/jadwal', [JadwalOperatorController::class, 'store'])->name('jadwal.store');
+Route::post('/jadwal/update/{id}', [JadwalOperatorController::class, 'update'])->name('jadwal.update');
+
+// Hapus jadwal
+Route::delete('/jadwal/{id}', [JadwalOperatorController::class, 'destroy'])->name('jadwal.destroy');
+
+// Halaman kalender (view)
+Route::get('/kalender', [JadwalOperatorController::class, 'kalender'])->name('kalender');
+
+// API kalender (data JSON, dsb)
+Route::get('/kalender-api', [JadwalOperatorController::class, 'kalenderApi'])->name('kalender.api');
+
+// Halaman manajemen
+Route::get('/manajemen', [ManajemenController::class, 'index'])->name('manajemen')->middleware('auth');
+Route::post('/karyawan-store', [ManajemenController::class, 'storeKaryawan'])->name('karyawan.store');
+Route::post('/nozle-store', [ManajemenController::class, 'storeNozle'])->name('nozle.store');

@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('karyawan', function (Blueprint $table) {
+        Schema::create('spbu', function (Blueprint $table) {
             $table->id();
-            $table->string('Nama');
-            $table->enum('Role', ['Owner', 'Pengawas', 'Admin', 'Accounting', 'Operator', 'OB', 'Security']);
-            $table->string('Nip')->unique();
-            $table->string('NomorSPBU')->nullable();
+            $table->string("NamaSPBU");
+            $table->string("NomorSPBU")->unique();
+            $table->string("Alamat");
+            $table->foreign('UserId')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('karyawan');
+        Schema::dropIfExists('spbu');
     }
 };

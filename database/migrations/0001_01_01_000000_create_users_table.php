@@ -17,7 +17,8 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('username');
             $table->string('password');
-            $table->enum('role', ['admin', 'user', 'owner'])->default('user');
+            $table->enum('role', ['admin', 'owner'])->default('admin');
+            $table->string('NomorSPBU')->nullable(); 
             $table->timestamps();
         });
     }

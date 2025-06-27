@@ -70,6 +70,7 @@
                 </div>
             </div>
             <p class="text-center" style="font-size: 14px;">© 2025 | Pertamina Power Indonesia</p>
+            <a href="/kehadiran" class="text-center" style="font-size: 14px; text-decoration: none;">Isi Halaman Kehadiran</a>
         </div>
     </div>
 </main>

@@ -13,10 +13,22 @@ class Karyawan extends Model
     protected $fillable = [
         'Nama',
         'Nip',
+        'Role',
+        'NomorSPBU',
     ];
 
     public function absensis()
     {
-        return $this->hasMany(Absensi::class);
+        return $this->hasMany(Absensi::class, 'KaryawanId', 'id');
+    }
+    
+    public function totalizerAkhirTerakhir()
+    {
+        return $this->hasOne(Absensi::class, 'KaryawanId', 'id')->latestOfMany();
+    }
+
+    public function spbu()
+    {
+        return $this->belongsTo(Spbu::class, 'NomorSPBU', 'NomorSPBU');
     }
 }
