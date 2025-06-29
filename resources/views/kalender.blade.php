@@ -7,7 +7,11 @@
 <div class="container mt-4">
     <a href="/jadwal" class="btn btn-outline-danger">Kembali</a>
     <h3>Kalender Jadwal Operator @isset($namaspbu) {{ $namaspbu }}@endisset</h3>
-    <div id="calendar"></div>
+    <div class="card mb-4">
+            <div class="card-body">
+                <div id="calendar"></div>
+            </div>
+        </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 <script>

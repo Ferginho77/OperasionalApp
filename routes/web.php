@@ -22,6 +22,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 
 // Route Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
+Route::get('/kalender-api', [JadwalOperatorController::class, 'kalenderApi'])->name('kalender.api');
 
 // Route Absensi
 Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi.form')->middleware('auth');
@@ -63,4 +64,8 @@ Route::get('/kalender-api', [JadwalOperatorController::class, 'kalenderApi'])->n
 // Halaman manajemen
 Route::get('/manajemen', [ManajemenController::class, 'index'])->name('manajemen')->middleware('auth');
 Route::post('/karyawan-store', [ManajemenController::class, 'storeKaryawan'])->name('karyawan.store');
+Route::delete('/karyawan/{id}', [ManajemenController::class, 'destroyKaryawan'])->name('karyawan.destroy');
+Route::post('/karyawan/update', [ManajemenController::class, 'UpdateKaryawan'])->name('karyawan.update');
 Route::post('/nozle-store', [ManajemenController::class, 'storeNozle'])->name('nozle.store');
+Route::post('/nozle/update', [ManajemenController::class, 'UpdateNozle'])->name('nozle.update');
+Route::delete('/nozle/{id}', [ManajemenController::class, 'destroyNozle'])->name('nozle.destroy');

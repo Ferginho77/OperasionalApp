@@ -49,7 +49,35 @@
                 </div>
             </div>
         </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white mb-4">
+                <div class="card-body">Operator Aktif Hari Ini <i class="fa-solid fa-user-check"></i></div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <span class="small text-white">{{ $karyawan }} Operator</span>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-body">
+                <div id="calendarMini"></div>
+            </div>
+        </div>
+
+
 
     </div> 
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendarMini');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        height: 350, // atau 100% jika ingin responsif penuh
+        aspectRatio: 1.1, // Biar lebih persegi
+        events: "{{ route('kalender.api') }}", 
+    });
+    calendar.render();
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 @endsection

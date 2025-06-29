@@ -61,8 +61,35 @@ class ManajemenController extends Controller
             'NomorSPBU' => $nomorSpbu,
         ]);
 
-        return redirect()->route('manajemen')->with('success', 'Jadwal berhasil dibuat.');
+        return redirect()->back()
+            ->withErrors(['manajemen' => 'Nip Sudah Terdaftar.'])
+            ->withInput();
     }
+
+    public function UpdateKaryawan(Request $request)
+{
+    $karyawan = Karyawan::findOrFail($request->id);
+
+    $request->validate([
+        'Nama' => 'required|string|max:255',
+        'Nip' => 'required|string|max:20',
+    ]);
+
+    $karyawan->update([
+        'Nama' => $request->Nama,
+        'Nip' => $request->Nip,
+    ]);
+
+    return redirect()->route('manajemen')->with('success', 'Karyawan berhasil diperbarui.');
+}
+
+public function destroyKaryawan($id)
+{
+    $karyawan = Karyawan::findOrFail($id);
+    $karyawan->delete();
+
+    return redirect()->route('manajemen')->with('success', 'Karyawan berhasil dihapus.');
+}
 
 public function storeNozle(Request $request)
 {
@@ -81,5 +108,29 @@ public function storeNozle(Request $request)
     return redirect()->route('manajemen')->with('success', 'Nozle berhasil ditambahkan.');
 }
 
+    public function UpdateNozle(Request $request)
+    {
+        $nozle = Nozle::findOrFail($request->id);
 
+        $request->validate([
+            'NamaNozle' => 'required|string|max:255',
+            'PulauId' => 'required|integer',
+        ]);
+
+        $nozle->update([
+            'NamaNozle' => $request->NamaNozle,
+            'PulauId' => $request->PulauId,
+        ]);
+
+        return redirect()->route('manajemen')->with('success', 'Nozle berhasil diperbarui.');
+    }
+
+
+    public function destroyNozle($id)
+    {
+        $nozle = Nozle::findOrFail($id);
+        $nozle->delete();
+
+        return redirect()->route('manajemen')->with('success', 'Nozle berhasil dihapus.');
+    }
 }

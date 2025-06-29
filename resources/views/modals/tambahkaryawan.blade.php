@@ -20,10 +20,6 @@
                                 <label class="form-label">NIP</label>
                                 <input type="text" name="Nip" class="form-control" required>
                             </div>
-                            @foreach($SpbuId as $s)
-                                <input type="text" name="NomorSPBU" class="form-control" value="{{ $s->SpbuId }}" hidden>
-                            @endforeach
-                                
                             <button type="submit" class="btn btn-outline-primary">Tambah</button>
                         </form>
                     </div>
