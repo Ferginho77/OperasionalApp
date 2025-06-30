@@ -31,12 +31,15 @@ Route::get('/download-absensi', function () {
 });
 Route::get('/download-absensi-pdf', [AbsensiPdfController::class, 'export']);
 // Fungsi post untuk setiap aksi
-Route::resource('absensi', AbsensiController::class);
-Route::put('absensi/{id}/istirahat', [AbsensiController::class, 'istirahat'])->name('absensi.istirahat');
-Route::put('absensi/{id}/pindah', [AbsensiController::class, 'pindahNozle'])->name('absensi.pindah');
-Route::put('absensi/{id}/kembali', [AbsensiController::class, 'kembaliNozle'])->name('absensi.kembali');
-Route::put('absensi/{id}/pulang', [AbsensiController::class, 'pulang'])->name('absensi.pulang');
-Route::get('/absensi/totalizer-akhir', [AbsensiController::class, 'getTotalizerAkhir']);
+
+Route::middleware(['auth'])->group(function() {
+    Route::post('/absensi', [AbsensiController::class, 'store'])->name('absensi.store');
+    Route::post('/absensi/istirahat', [AbsensiController::class, 'istirahat'])->name('absensi.istirahat');
+    Route::post('/absensi/kembali', [AbsensiController::class, 'kembaliNozle'])->name('absensi.kembali');
+    Route::post('/absensi/pulang', [AbsensiController::class, 'pulang'])->name('absensi.pulang');
+    Route::post('/absensi/mulai-backup', [AbsensiController::class, 'mulaiBackup'])->name('absensi.mulaiBackup');
+    Route::post('/absensi/selesaiBackup', [AbsensiController::class, 'selesaiBackup'])->name('absensi.selesaiBackup');
+});
 
 // Route Owner
 Route::get('/owner', [OwnerController::class, 'index'])->name('owner')->middleware('auth');

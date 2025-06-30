@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BackupSession;
 use App\Models\Nozle;
 use App\Models\Produk;
 use Illuminate\Http\Request;
@@ -40,9 +41,11 @@ class AbsensiController extends Controller
         })
         ->get();
 
-    // Tidak perlu $totalizer global lagi
+    $backupSessions = BackupSession::with(['backupOperator', 'absensi.nozle'])
+    ->whereNotNull('JamMulai')
+    ->whereNull('JamSelesai')->get();
 
-    return view('absensi', compact('karyawan', 'nozle', 'produk', 'absensi'));
+    return view('absensi', compact('karyawan', 'nozle', 'produk', 'absensi', 'backupSessions'));
 }
 
 
@@ -60,7 +63,7 @@ class AbsensiController extends Controller
 
         Absensi::create([
             'KaryawanId' => $request->KaryawanId,
-            'Tanggal' => date('Y-m-d'),
+            'Tanggal' => now()->toDateString(),
             'JamMasuk' => now(),
             'NozleId' => $request->NozleId,
             'ProdukId' => $request->ProdukId,
@@ -71,60 +74,78 @@ class AbsensiController extends Controller
         return back()->with('success', 'Absensi masuk berhasil.');
     }
 
-    public function istirahat(Request $request, $id)
+
+     public function istirahat(Request $request)
     {
         $request->validate([
             'TotalizerAkhir' => 'required|numeric'
         ]);
 
-        $absen = Absensi::findOrFail($id);
+        $absen = Absensi::findOrFail($request->id);
         $absen->update([
             'JamIstirahatMulai' => now(),
             'TotalizerAkhir' => $request->TotalizerAkhir
         ]);
-
-        return back()->with('success', 'Istirahat dicatat.');
+        
+        return back()->with('success', 'Istirahat dimulai.');
     }
 
-    public function pindahNozle(Request $request, $id)
+
+     public function mulaiBackup(Request $request)
     {
         $request->validate([
-            'NozleId' => 'required|exists:nozle,id',
+            'AbsensiId' => 'required|exists:absensi,id',
+            'BackupOperatorId' => 'required|exists:karyawan,id',
             'TotalizerAwal' => 'required|numeric'
         ]);
 
-        $absen = Absensi::findOrFail($id);
-        $absen->update([
-            'JamPindahNozle' => now(),
-            'NozleId' => $request->NozleId,
+        BackupSession::create([
+            'AbsensiId' => $request->AbsensiId,
+            'BackupOperatorId' => $request->BackupOperatorId,
+            'JamMulai' => now(),
             'TotalizerAwal' => $request->TotalizerAwal
         ]);
 
-        return back()->with('success', 'Pindah nozzle berhasil.');
+        return back()->with('success', 'Backup nozzle dimulai.');
     }
 
-    public function kembaliNozle(Request $request, $id)
+    public function selesaiBackup(Request $request)
     {
         $request->validate([
             'TotalizerAkhir' => 'required|numeric'
         ]);
 
-        $absen = Absensi::findOrFail($id);
-        $absen->update([
-            'JamKembaliNozle' => now(),
+        $backup = BackupSession::findOrFail($request->id);
+        $backup->update([
+            'JamSelesai' => now(),
             'TotalizerAkhir' => $request->TotalizerAkhir
         ]);
 
-        return back()->with('success', 'Kembali ke nozzle awal dicatat.');
+        return back()->with('success', 'Backup nozzle selesai.');
     }
 
-    public function pulang(Request $request, $id)
+    public function kembaliNozle(Request $request)
+    {
+        $request->validate([
+            'TotalizerAwal' => 'required|numeric'
+        ]);
+
+        $absen = Absensi::findOrFail($request->id);
+        $absen->update([
+            'JamIstirahatKembali' => now(),
+            'TotalizerAwal' => $request->TotalizerAwal
+        ]);
+
+        return back()->with('success', 'Kembali ke nozzle awal.');
+    }
+
+    public function pulang(Request $request)
     {
         $request->validate([
             'TotalizerAkhir' => 'required|numeric'
         ]);
 
-        $absen = Absensi::findOrFail($id);
+        $absen = Absensi::findOrFail($request->id);
         $absen->update([
             'JamPulang' => now(),
             'TotalizerAkhir' => $request->TotalizerAkhir
@@ -132,6 +153,5 @@ class AbsensiController extends Controller
 
         return back()->with('success', 'Absensi pulang dicatat.');
     }
-
 }
 

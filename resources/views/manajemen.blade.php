@@ -9,17 +9,26 @@
 </style>
 <div class="container mt-4">
 
-    <div class="section-card">
-        <div class="section-title">
+<div class="section-card">
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap">
+        <div class="section-title mb-0">
             <img src="{{ asset('img/staff.png') }}" alt="Karyawan">
             Manajemen Karyawan
         </div>
-        <div class="mb-2">
-            <button 
-            data-bs-toggle="modal"
-            data-bs-target="#TambahKaryawan"
-            class="btn btn-success btn-sm">Tambah Karyawan</button>
-        </div>
+        <form method="GET" action="{{ route('manajemen') }}" class="d-flex" style="gap:8px; min-width:250px;">
+            <input type="text" name="search_karyawan" class="form-control form-control-sm" placeholder="Cari Nama Karyawan..." value="{{ request('search_karyawan') }}">
+            <button class="btn btn-outline-primary btn-sm" type="submit">Cari</button>
+            @if(request('search_karyawan'))
+                <a href="{{ route('manajemen') }}" class="btn btn-outline-danger btn-sm">Reset</a>
+            @endif
+        </form>
+    </div>
+    <div class="mb-2">
+        <button 
+        data-bs-toggle="modal"
+        data-bs-target="#TambahKaryawan"
+        class="btn btn-success btn-sm">Tambah Karyawan</button>
+    </div>
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
@@ -54,18 +63,26 @@
             </tbody>
         </table>
     </div>
-
-    <div class="section-card">
-        <div class="section-title">
+<div class="section-card">
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap">
+        <div class="section-title mb-0">
             <img src="{{ asset('img/gas-pump.png') }}" alt="Nozzle">
             Manajemen Nozzle
         </div>
-        <div class="mb-2">
-            <button 
-            data-bs-toggle="modal"
-            data-bs-target="#TambahNozle"
-            class="btn btn-success btn-sm">Tambah Nozzle</button>
-        </div>
+        <form method="GET" action="{{ route('manajemen') }}" class="d-flex" style="gap:8px; min-width:250px;">
+            <input type="text" name="search_nozle" class="form-control form-control-sm" placeholder="Cari Nama Nozzle..." value="{{ request('search_nozle') }}">
+            <button class="btn btn-outline-primary btn-sm" type="submit">Cari</button>
+            @if(request('search_nozle'))
+                <a href="{{ route('manajemen') }}" class="btn btn-outline-danger btn-sm">Reset</a>
+            @endif
+        </form>
+    </div>
+    <div class="mb-2">
+        <button 
+        data-bs-toggle="modal"
+        data-bs-target="#TambahNozle"
+        class="btn btn-success btn-sm">Tambah Nozzle</button>
+    </div>
         <table class="table table-striped table-hover">
             <thead>
                 <tr>

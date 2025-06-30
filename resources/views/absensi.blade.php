@@ -15,7 +15,9 @@
                             <label for="KaryawanId" class="form-label">Karyawan</label>
                             <select name="KaryawanId" id="karyawanSelect" class="form-select">
                                 @foreach ($karyawan as $k)
-                                    <option value="{{ $k->id }}" data-totalizer="{{ $k->totalizerAkhirTerakhir->TotalizerAkhir ?? '0' }}">{{ $k->Nama }}</option>
+                                    <option value="{{ $k->id }}" data-totalizer="{{ $k->totalizerAkhirTerakhir->TotalizerAkhir ?? '0' }}">
+                                        {{ $k->Nama }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -29,7 +31,6 @@
                                 @endforeach
                             </select>
                         </div>
-
                         <div class="mb-3">
                             <label for="ProdukId" class="form-label">Produk</label>
                             <select name="ProdukId" class="form-select">
@@ -38,72 +39,57 @@
                                 @endforeach
                             </select>
                         </div>
-
                         <div class="mb-3">
                             <label for="Pulau" class="form-label">Pulau</label>
                             <input type="text" name="Pulau" id="pulauInput" class="form-control" readonly value="">
                         </div>
-
                         <div class="mb-3">
                             <label for="TotalizerAwal" class="form-label">Totalizer Awal</label>
                             <input type="number" step="0.01" name="TotalizerAwal" id="TotalizerAwal" class="form-control" readonly>
                         </div>
-
                         <button type="submit" class="btn btn-primary w-100">Absen Masuk</button>
                     </form>
                 </div>
             </div>
         </div>
-        <div  class="col-md-6 d-flex justify-content-center">
-            <img  class="img-fluid" src="/img/mesin.png" alt="Logo Mesin" style="max-width: 350px; max-height: 450px; object-fit: contain;">
+        <div class="col-md-6 d-flex justify-content-center">
+            <img class="img-fluid" src="/img/mesin.png" alt="Logo Mesin" style="max-width: 350px; max-height: 450px; object-fit: contain;">
         </div>
     </div>
 </div>
 
 <div class="container mt-4">
     <div class="row g-3">
-        <div class="col-md-3 col-6">
-            <h5 class="text-center mb-2">Absen Istirahat</h5>
-            <button type="button" class="btn btn-warning w-100"
-                data-bs-toggle="modal"
-                data-bs-target="#IstirahatModal">
-                Absen Istirahat
+        <div class="col-md-2 col-6">
+            <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#IstirahatModal">
+                Istirahat
+            </button>
+        </div>
+        <div class="col-md-2 col-6">
+            <button type="button" class="btn btn-info w-100" data-bs-toggle="modal" data-bs-target="#PindahModal">
+                Mulai Backup
+            </button>
+        </div>
+        <div class="col-md-2 col-6">
+            <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#SelesaiBackupModal">
+                Selesai Backup
             </button>
         </div>
         <div class="col-md-3 col-6">
-            <h5 class="text-center mb-2">Pindah Nozzle</h5>
-            <button type="button" class="btn btn-info w-100"
-                data-bs-toggle="modal"
-                data-bs-target="#PindahModal">
-                Pindah Nozzle
+            <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#KembaliModal">
+                Kembali Nozzle
             </button>
         </div>
         <div class="col-md-3 col-6">
-            <h5 class="text-center mb-2">Kembali ke Nozzle Awal</h5>
-            <button type="button" class="btn btn-success w-100"
-                data-bs-toggle="modal"
-                data-bs-target="#KembaliModal">
-                Kembali ke Nozzle Awal
-            </button>
-        </div>
-        <div class="col-md-3 col-6">
-            <h5 class="text-center mb-2">Absen Pulang</h5>
-            <button type="button" class="btn btn-danger w-100"
-                data-bs-toggle="modal"
-                data-bs-target="#PulangModal">
-                Absen Pulang
+            <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#PulangModal">
+                Pulang
             </button>
         </div>
     </div>
 </div>
 
-@include('modals.istirahat')
-@include('modals.pindahnozle')
-@include('modals.kembalinozle')
-@include('modals.pulang')
-<div class="container">
+<div class="container mt-4">
     <h3>Data Absensi</h3>
-
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -113,80 +99,73 @@
                 <th>Jam Masuk</th>
                 <th>Jam Istirahat</th>
                 <th>Nozle</th>
-                <th>Produk</th>
                 <th>Totalizer</th>
                 <th>Insentif</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($absensi as $a)
+                @php
+                    $literUtama = ($a->TotalizerAkhir && $a->TotalizerAwal) ? $a->TotalizerAkhir + $a->TotalizerAwal : 0;
+                    $literBackup = \App\Models\BackupSession::where('AbsensiId', $a->id)
+                        ->whereNotNull('TotalizerAkhir')
+                        ->sum(\DB::raw('TotalizerAkhir - TotalizerAwal'));
+                    $totalLiter = $literUtama + $literBackup;
+                    $insentif = $totalLiter * 100;
+                @endphp
                 <tr>
                     <td>{{ $a->karyawan->Nama }}</td>
                     <td>
-                    @if ($a->JamPulang)
-                        <span class="text-success">Sudah Pulang</span>
-                    @elseif ($a->JamIstirahatKembali)
-                        <span class="text-info">Kembali dari Istirahat</span>
-                    @elseif ($a->JamKembaliNozle)
-                        <span class="text-warning">Kembali dari Nozle</span>
-                    @elseif ($a->JamPindahNozle)
-                        <span class="text-warning">Sedang ke Nozle</span>
-                    @elseif ($a->JamIstirahatMulai)
-                        <span class="text-warning">Istirahat Dimulai</span>
-                    @elseif ($a->JamMasuk)
-                        <span class="text-primary">Sudah Masuk</span>
-                    @else
-                        <span class="text-danger">Belum Absen</span>
-                    @endif
-                </td>
+                        @if ($a->JamPulang)
+                            <span class="text-success">Sudah Pulang</span>
+                        @elseif ($a->JamIstirahatKembali)
+                            <span class="text-info">Kembali Istirahat</span>
+                        @elseif ($a->JamIstirahatMulai)
+                            <span class="text-warning">Istirahat</span>
+                        @else
+                            <span class="text-primary">Masuk</span>
+                        @endif
+                    </td>
                     <td>{{ $a->Tanggal }}</td>
                     <td>{{ $a->JamMasuk }}</td>
                     <td>{{ $a->JamIstirahatMulai }}</td>
                     <td>{{ $a->nozle->NamaNozle ?? '-' }}</td>
-                    <td>{{ $a->produk->NamaProduk ?? '-' }}</td>
                     <td>
-                        {{ $a->TotalizerAwal ?? '-' }} - {{ $a->TotalizerAkhir ?? '-' }}<br>
-                        {{ number_format($a->TotalLiter, 2) }} Liter
+                        Utama: {{ number_format($literUtama, 0) }}L <br>
+                        Backup: {{ number_format($literBackup, 0) }}L
                     </td>
-                    <td>Rp {{ number_format($a->Insentif, 0) }}</td>
+                    <td>Rp {{ number_format($insentif, 0) }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 </div>
-<script>
-  AOS.init();
-</script>
+
+@include('modals.istirahat')
+@include('modals.pindahnozle')
+@include('modals.selesaibackup')
+@include('modals.kembalinozle')
+@include('modals.pulang')
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const nozleSelect = document.getElementById('nozleSelect');
     const pulauInput = document.getElementById('pulauInput');
-
     function updatePulau() {
         const selectedOption = nozleSelect.options[nozleSelect.selectedIndex];
         pulauInput.value = selectedOption.getAttribute('data-pulau') || '';
     }
-
     nozleSelect.addEventListener('change', updatePulau);
-
-    // Set pulau saat halaman pertama kali dimuat
     updatePulau();
-});
 
-document.addEventListener('DOMContentLoaded', function(){
     const karyawanSelect = document.getElementById('karyawanSelect');
-    const TotalizerInput = document.getElementById('TotalizerAwal');
-
+    const totalizerInput = document.getElementById('TotalizerAwal');
     function updateTotalizer() {
         const selectedOption = karyawanSelect.options[karyawanSelect.selectedIndex];
-        TotalizerInput.value = selectedOption.getAttribute('data-totalizer') || '';
+        totalizerInput.value = selectedOption.getAttribute('data-totalizer') || '';
     }
-
     karyawanSelect.addEventListener('change', updateTotalizer);
-
-    // Set totalizer saat halaman pertama kali dimuat
     updateTotalizer();
 });
 </script>
-
 @endsection

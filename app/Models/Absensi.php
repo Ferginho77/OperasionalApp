@@ -7,41 +7,70 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Absensi extends Model
 {
+    use HasFactory;
+
     protected $table = 'absensi';
+
     protected $fillable = [
-        'KaryawanId', 'Tanggal', 'JamMasuk', 'JamIstirahatMulai', 'JamPindahNozle',
-        'JamKembaliNozle', 'JamIstirahatKembali', 'JamPulang',
-        'NozleId', 'ProdukId', 'Pulau', 'TotalizerAwal', 'TotalizerAkhir'
+        'KaryawanId',
+        'Tanggal',
+        'JamMasuk',
+        'JamIstirahatMulai',
+        'JamKembaliNozle',
+        'JamIstirahatKembali',
+        'JamPulang',
+        'NozleId',
+        'ProdukId',
+        'Pulau',
+        'TotalizerAwal',
+        'TotalizerAkhir',
     ];
 
+    // Relasi ke Karyawan
     public function karyawan()
     {
-        return $this->belongsTo(Karyawan::class, 'KaryawanId');
+        return $this->belongsTo(Karyawan::class, 'KaryawanId', 'id');
     }
 
+    // Relasi ke Nozle
     public function nozle()
     {
-        return $this->belongsTo(Nozle::class, 'NozleId');
+        return $this->belongsTo(Nozle::class, 'NozleId', 'id');
     }
 
+    // Relasi ke Produk
     public function produk()
     {
-        return $this->belongsTo(Produk::class, 'ProdukId');
+        return $this->belongsTo(Produk::class, 'ProdukId', 'id');
     }
 
+    // Relasi ke BackupSession
+    public function backupSessions()
+    {
+        return $this->hasMany(BackupSession::class, 'AbsensiId', 'id');
+    }
+
+    // Akses Total Liter
     public function getTotalLiterAttribute()
     {
-        return $this->TotalizerAkhir - $this->TotalizerAwal;
+        if ($this->TotalizerAwal !== null && $this->TotalizerAkhir !== null) {
+            return $this->TotalizerAkhir - $this->TotalizerAwal;
+        }
+        return 0;
     }
 
+    // Akses Total Penjualan
     public function getTotalPenjualanAttribute()
     {
-        return $this->TotalLiter * $this->produk->HargaPerLiter;
+        if ($this->produk && $this->TotalLiter) {
+            return $this->TotalLiter * $this->produk->HargaPerLiter;
+        }
+        return 0;
     }
 
+    // Akses Insentif
     public function getInsentifAttribute()
     {
         return $this->TotalPenjualan * 0.01;
     }
 }
-

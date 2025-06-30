@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ManajemenController extends Controller
 {
-    public function index()
+    public function index(Request $request)
 {
     $user = Auth::user();
     $nomorSpbu = $user->NomorSPBU;
@@ -33,6 +33,19 @@ class ManajemenController extends Controller
     $nozle = Nozle::with('pulau')
         ->where('SpbuId', $SpbuId)
         ->get();
+
+            $karyawanQuery = Karyawan::where('NomorSPBU', $nomorSpbu);
+    if ($request->filled('search_karyawan')) {
+        $karyawanQuery->where('Nama', 'like', '%' . $request->search_karyawan . '%');
+    }
+    $karyawan = $karyawanQuery->orderBy('Nama')->get();
+
+    // Filter Nozle
+    $nozleQuery = Nozle::with('pulau')->where('SpbuId', $SpbuId);
+    if ($request->filled('search_nozle')) {
+        $nozleQuery->where('NamaNozle', 'like', '%' . $request->search_nozle . '%');
+    }
+    $nozle = $nozleQuery->get();
 
     $produk = Produk::all();
 

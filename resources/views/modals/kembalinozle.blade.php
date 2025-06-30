@@ -1,28 +1,31 @@
 <div class="modal fade" id="KembaliModal" tabindex="-1" aria-labelledby="KembaliModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="KembaliModalLabel">Form Kembali Nozle</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="container">
-                            <h3>Kembali ke Nozzle Awal</h3>
-
-                        <form action="{{ route('absensi.kembali', $absenTerakhir->id ?? 0) }}" method="POST">
-
-                                @csrf
-                                @method('PUT')
-
-                                <div class="mb-3">
-                                    <label for="TotalizerAkhir" class="form-label">Totalizer Akhir dari Nozzle Tujuan</label>
-                                    <input type="number" step="0.01" name="TotalizerAkhir" class="form-control" required>
-                                </div>
-
-                                <button type="submit" class="btn btn-success">Kembali ke Nozzle Awal</button>
-                            </form>
-                        </div>
-                </div>
-            </div>
+  <div class="modal-dialog">
+    <form action="{{ route('absensi.kembali') }}" method="POST" id="kembaliForm">
+      @csrf
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Kembali ke Nozzle Awal</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-   </div>  
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Pilih Absensi</label>
+            <select name="id" id="absensiIdKembali" class="form-select" required>
+              @foreach($absensi as $a)
+                <option value="{{ $a->id }}">{{ $a->karyawan->Nama }} - Nozzle {{ $a->nozle->NamaNozle ?? '' }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Totalizer Awal Setelah Kembali</label>
+            <input type="number" step="0.01" name="TotalizerAwal" class="form-control" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Simpan</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
