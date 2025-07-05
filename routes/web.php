@@ -44,6 +44,11 @@ Route::middleware(['auth'])->group(function() {
 // Route Owner
 Route::get('/owner', [OwnerController::class, 'index'])->name('owner')->middleware('auth');
 Route::get('/absensiKaryawan', [OwnerController::class, 'ShowAbsen'])->name('absensi.karyawan')->middleware('auth');
+Route::get('/owner/spbu/{id}', [OwnerController::class, 'showSpbu'])->name('owner.spbu.show');
+Route::get('/api/kalender/{nomorSpbu}', [OwnerController::class, 'kalenderApi'])->name('owner.kalender.api');
+Route::get('/owner/{nomorSpbu}/download-jadwal', [OwnerController::class, 'downloadJadwalXls'])->name('owner.jadwal.download.xls');
+Route::get('/owner/{nomorSpbu}/download-jadwal-pdf', [OwnerController::class, 'downloadJadwalPdf'])->name('owner.jadwal.download.pdf');
+
 
 //Route Kehadiran
 Route::get('/kehadiran', [KehadiranController::class, 'index'])->name('kehadiran')->middleware('guest');
@@ -57,6 +62,8 @@ Route::post('/jadwal/update/{id}', [JadwalOperatorController::class, 'update'])-
 
 // Hapus jadwal
 Route::delete('/jadwal/{id}', [JadwalOperatorController::class, 'destroy'])->name('jadwal.destroy');
+Route::get('/download-jadwal', [JadwalOperatorController::class, 'downloadJadwalXls'])->name('jadwal.download.xls');
+Route::get('/download-jadwal-pdf', [AbsensiPdfController::class, 'download'])->name('jadwal.pdf.download');
 
 // Halaman kalender (view)
 Route::get('/kalender', [JadwalOperatorController::class, 'kalender'])->name('kalender');

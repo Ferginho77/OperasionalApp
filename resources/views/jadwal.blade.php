@@ -86,6 +86,10 @@
                         @endif
                     </tbody>
                 </table>
+                 <a href="{{ url('/download-jadwal') }}" class="btn btn-success">
+                    Download Dokumen <i class="fa-solid fa-download"></i>
+            </a>
+            <a href="{{ url('/download-jadwal-pdf') }}" class="btn btn-primary">Download PDF <i class="fa-solid fa-download"></i></a>
             </div>
         </div>
         <div class="col-md-6 d-flex justify-content-center">

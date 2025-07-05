@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AbsensiExport;
+use App\Exports\JadwalOperatorExport;
 use App\Models\JadwalOperator;
 use App\Models\Karyawan;
 use App\Models\Spbu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class JadwalOperatorController extends Controller
 {
@@ -146,13 +149,26 @@ class JadwalOperatorController extends Controller
             ->get();
 
         $events = $jadwals->map(function ($jadwal) {
-            return [
-                'title' => $jadwal->karyawan->Nama . ' (' . ucfirst($jadwal->Shift) . ')',
-                'start' => $jadwal->Tanggal,
-                'allDay' => true,
-            ];
-        });
+        // Tentukan warna berdasarkan shift
+        $color = '#007bff'; // default biru
+        if (strtolower($jadwal->Shift) === 'Sore') {
+            $color = '#dc3545'; // merah
+        }
+
+        return [
+            'title' => $jadwal->karyawan->Nama . ' (' . ucfirst($jadwal->Shift) . ')',
+            'start' => $jadwal->Tanggal,
+            'allDay' => true,
+            'color' => $color,
+        ];
+    });
 
         return response()->json($events);
     }
+
+    public function downloadJadwalXls()
+{
+   $nomorSpbu = Auth::user()->NomorSPBU;
+    return Excel::download(new JadwalOperatorExport($nomorSpbu), 'jadwal_operator.xls');
+}
 }
