@@ -27,6 +27,7 @@
         <a class="nav-link" href="/absensi">Absensi</a>
         <a class="nav-link" href="/manajemen">Manajemen</a>
         <a class="nav-link" href="/jadwal">Jadwal Operator</a>
+        <a class="nav-link" href="/rekapabsensi">Rekap Absensi</a>
             <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Apakah Yakin Untuk Meninggalkan Aplikasi?')">
                 @csrf
                 <button class="nav-link text-danger" type="submit">Logout</button>

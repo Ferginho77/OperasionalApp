@@ -47,15 +47,6 @@ class JadwalOperatorController extends Controller
 
         $nomorSpbu = Auth::user()->NomorSPBU;
 
-        // $bentrok = JadwalOperator::where('Tanggal', $request->Tanggal)
-        //     ->where('Shift', $request->Shift)
-        //     ->where('NomorSPBU', $nomorSpbu)
-        //     ->exists();
-
-        // if ($bentrok) {
-        //     return back()->withErrors('Shift ini sudah diisi oleh operator lain di SPBU ini.');
-        // }
-
         JadwalOperator::create([
             'KaryawanId' => $request->KaryawanId,
             'Tanggal' => $request->Tanggal,
@@ -108,27 +99,6 @@ class JadwalOperatorController extends Controller
         $jadwal->delete();
 
         return back()->with('success', 'Jadwal berhasil dihapus.');
-    }
-
-    // Laporan Mingguan
-    public function laporanMingguan()
-    {
-        $nomorSpbu = Auth::user()->NomorSPBU;
-        $TanggalAwal = now()->startOfWeek();
-        $TanggalAkhir = now()->endOfWeek();
-
-        $jadwals = JadwalOperator::with('karyawan')
-            ->where('NomorSPBU', $nomorSpbu)
-            ->whereBetween('Tanggal', [$TanggalAwal, $TanggalAkhir])
-            ->orderBy('Tanggal')
-            ->orderBy('Shift')
-            ->get();
-
-        $operators = Karyawan::where('Role', 'Operator')
-            ->where('NomorSPBU', $nomorSpbu)
-            ->get();
-
-        return view('jadwal', compact('jadwals', 'TanggalAwal', 'TanggalAkhir', 'operators'));
     }
 
     // View kalender

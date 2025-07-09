@@ -5,57 +5,26 @@
 
 @section('content')
 <main>
-    <div class="card mt-3">
-        <div class="card-header">
-           <h3> Table Absensi Karyawan</h3>
+    
+    <h3>Absensi Tiap Wilayah</h3>
+     @foreach($spbus as $spbu)
+        <div class="col-xl-3 col-md-6">
+            <div class="card mb-4 shadow-sm" style="cursor: pointer;" onclick="window.location.href='/manajemen/spbu/{{ $spbu['id'] }}'">
+                <div class="card-body">
+                    <h5 class="card-title text-primary mb-2">
+                        <i class="fa-solid fa-gas-pump"></i> {{ $spbu['NamaSPBU'] }}
+                    </h5>
+                    <p class="card-text text-muted mb-0">
+                        {{ $spbu['NomorSPBU'] }}
+                    </p>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a href="{{ route('owner.spbu.absensi', $spbu->id) }}">Kelola SPBU</a>
+                        <i class="fa-solid fa-angle-right text-primary"></i>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-           <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama Karyawan</th>
-                    <th>Tanggal</th>
-                    <th>Jam Hadir</th>
-                    <th>Jam Istirahat</th>
-                    <th>Jam Kembali Istirahat</th>
-                    <th>Jam Pulang</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                @foreach($absensi as $index => $x)
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $x->karyawan ? $x->karyawan->Nama : 'Karyawan Tidak Ditemukan' }}</td>
-                    <td>{{ $x->Tanggal }}</td>
-                    <td>{{ $x->JamMasuk ? $x->JamMasuk : 'Belum Absen' }}</td>
-                    <td>{{ $x->JamIstirahat ? $x->JamIstirahat : 'Belum Absen' }}</td>
-                    <td>{{ $x->JamKembali ? $x->JamKembali : 'Belum Absen' }}</td>
-                    <td>{{ $x->JamKeluar ? $x->JamKeluar : 'Belum Absen' }}</td>
-                     <td>
-                        @if ($x->JamMasuk && !$x->JamIstirahat)
-                           <div class="text-primary"><p>Hadir</p></div> 
-                        @elseif ($x->JamIstirahat && !$x->JamKembali)
-                            <div class="text-warning"><p>Sedang Istirahat</p></div> 
-                        @elseif ($x->JamKembali && !$x->JamKeluar)
-                            <div class="text-info"><p>Sudah Beres Istirahat</p></div> 
-                        @elseif ($x->JamKeluar)
-                            <div class="text-success"><p>Sudah Pulang</p></div>
-                        @else
-                            <div class="text-danger"><p>Belum Absen</p></div>
-                        @endif
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-            </table>
-            <a href="{{ url('/download-absensi') }}" class="btn btn-success">
-                    Download Dokumen <i class="fa-solid fa-download"></i>
-            </a>
-            <a href="{{ url('/download-absensi-pdf') }}" class="btn btn-primary">Download PDF <i class="fa-solid fa-download"></i></a>
-        </div>
-    </div>
+    @endforeach
 </main>
 @endsection
 </div>

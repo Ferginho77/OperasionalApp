@@ -31,6 +31,7 @@ Route::get('/download-absensi', function () {
 });
 Route::get('/download-absensi-pdf', [AbsensiPdfController::class, 'export']);
 // Fungsi post untuk setiap aksi
+Route::get('/rekapabsensi', [AbsensiController::class, 'rekap'])->name('rekap.absensi')->middleware('auth');
 
 Route::middleware(['auth'])->group(function() {
     Route::post('/absensi', [AbsensiController::class, 'store'])->name('absensi.store');
@@ -39,6 +40,7 @@ Route::middleware(['auth'])->group(function() {
     Route::post('/absensi/pulang', [AbsensiController::class, 'pulang'])->name('absensi.pulang');
     Route::post('/absensi/mulai-backup', [AbsensiController::class, 'mulaiBackup'])->name('absensi.mulaiBackup');
     Route::post('/absensi/selesaiBackup', [AbsensiController::class, 'selesaiBackup'])->name('absensi.selesaiBackup');
+    
 });
 
 // Route Owner
@@ -48,6 +50,7 @@ Route::get('/owner/spbu/{id}', [OwnerController::class, 'showSpbu'])->name('owne
 Route::get('/api/kalender/{nomorSpbu}', [OwnerController::class, 'kalenderApi'])->name('owner.kalender.api');
 Route::get('/owner/{nomorSpbu}/download-jadwal', [OwnerController::class, 'downloadJadwalXls'])->name('owner.jadwal.download.xls');
 Route::get('/owner/{nomorSpbu}/download-jadwal-pdf', [OwnerController::class, 'downloadJadwalPdf'])->name('owner.jadwal.download.pdf');
+Route::get('/owner/spbu/{id}/absensi', [OwnerController::class, 'absensiDetil'])->name('owner.spbu.absensi');
 
 
 //Route Kehadiran

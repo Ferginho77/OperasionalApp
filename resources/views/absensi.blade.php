@@ -91,6 +91,17 @@
 <div class="container mt-4">
     <h3>Data Absensi</h3>
     <table class="table table-bordered">
+        @if ($tidakHadir->count() > 0)
+    <div class="alert alert-danger">
+        <strong>Operator Tidak Hadir Hari Ini:</strong>
+        <ul>
+            @foreach ($tidakHadir as $operator)
+                <li>{{ $operator->Nama }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
         <thead>
             <tr>
                 <th>Nama</th>
@@ -99,6 +110,7 @@
                 <th>Jam Masuk</th>
                 <th>Jam Istirahat</th>
                 <th>Nozle</th>
+                <th>Produk</th>
                 <th>Totalizer</th>
                 <th>Insentif</th>
             </tr>
@@ -130,11 +142,14 @@
                     <td>{{ $a->JamMasuk }}</td>
                     <td>{{ $a->JamIstirahatMulai }}</td>
                     <td>{{ $a->nozle->NamaNozle ?? '-' }}</td>
+                    <td>{{ $a->produk->NamaProduk ?? '-' }}</td>
                     <td>
-                        Utama: {{ number_format($literUtama, 0) }}L <br>
-                        Backup: {{ number_format($literBackup, 0) }}L
+                        Utama: {{ number_format($r['totalizer_utama'], 0) }}L <br>
+                        Backup: {{ number_format($r['totalizer_backup'], 0) }}L
                     </td>
-                    <td>Rp {{ number_format($insentif, 0) }}</td>
+                    <td>
+                        Rp {{ number_format($r['insentif'], 0, ',', '.') }}
+                    </td>
                 </tr>
             @endforeach
         </tbody>

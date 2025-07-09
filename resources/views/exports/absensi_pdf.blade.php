@@ -41,36 +41,49 @@
                 <th>No</th>
                 <th>Nama Karyawan</th>
                 <th>Tanggal</th>
-                <th>Jam Hadir</th>
+                <th>Jam Masuk</th>
                 <th>Jam Istirahat</th>
                 <th>Jam Kembali</th>
                 <th>Jam Pulang</th>
-                <th>Status</th>
+                <th>Nozzle</th>
+                <th>Produk</th>
+                <th>Totalizer Utama</th>
+                <th>Totalizer Backup</th>
+                <th>Total Liter</th>
+                <th>Insentif</th>
+
             </tr>
         </thead>
         <tbody>
             @foreach($absensi as $index => $x)
+                @php
+                    $totalizer_utama = ($x->TotalizerAkhir && $x->TotalizerAwal)
+                        ? $x->TotalizerAkhir - $x->TotalizerAwal
+                        : 0;
+
+                    $totalizer_backup = \App\Models\BackupSession::where('AbsensiId', $x->id)
+                        ->whereNotNull('TotalizerAkhir')
+                        ->sum(\DB::raw('TotalizerAkhir - TotalizerAwal'));
+
+                    $total_liter = $totalizer_utama + $totalizer_backup;
+                    $insentif = $total_liter * 100;
+                @endphp
+
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $x->karyawan ? $x->karyawan->Nama : 'Karyawan Tidak Ditemukan' }}</td>
                     <td>{{ $x->Tanggal }}</td>
-                    <td>{{ $x->JamMasuk ?? 'Belum Absen' }}</td>
-                    <td>{{ $x->JamIstirahat ?? 'Belum Absen' }}</td>
-                    <td>{{ $x->JamKembali ?? 'Belum Absen' }}</td>
-                    <td>{{ $x->JamKeluar ?? 'Belum Absen' }}</td>
-                    <td>
-                        @if ($x->JamMasuk && !$x->JamIstirahat)
-                            Hadir
-                        @elseif ($x->JamIstirahat && !$x->JamKembali)
-                            Sedang Istirahat
-                        @elseif ($x->JamKembali && !$x->JamKeluar)
-                            Sudah Beres Istirahat
-                        @elseif ($x->JamKeluar)
-                            Sudah Pulang
-                        @else
-                            Belum Absen
-                        @endif
-                    </td>
+                    <td>{{ $x->JamMasuk ? date('H:i', strtotime($x->JamMasuk)) : '-' }}</td>
+                    <td>{{ $x->JamIstirahatMulai ? date('H:i', strtotime($x->JamIstirahatMulai)) : '-' }}</td>
+                    <td>{{ $x->JamIstirahatSelesai ? date('H:i', strtotime($x->JamIstirahatSelesai)) : '-' }}</td>
+                    <td>{{ $x->JamPulang ? date('H:i', strtotime($x->JamPulang)) : '-' }}</td>
+                    <td>{{ $x->nozle->NamaNozle ?? '-' }}</td>
+                    <td>{{ $x->produk->NamaProduk ?? '-' }}</td>
+                    <td>{{ $totalizer_utama }}L</td>
+                    <td>{{ $totalizer_backup }}L</td>
+                    <td>{{ $total_liter }}L</td>
+                    <td>Rp {{ number_format($insentif, 0, ',', '.') }}</td>
+
                 </tr>
             @endforeach
         </tbody>

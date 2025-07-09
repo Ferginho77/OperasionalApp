@@ -44,12 +44,13 @@ class OwnerController extends Controller
     /**
      * Halaman Absensi Semua Karyawan
      */
-    public function showAbsen()
-    {
+
+    public function showAbsen(){
         $karyawan = Karyawan::all();
         $absensi = Absensi::with('karyawan')->get();
+         $spbus = Spbu::all();
 
-        return view('absensiKaryawan', compact('karyawan', 'absensi'));
+        return view('absensiKaryawan', compact('karyawan', 'absensi', 'spbus'));
     }
 
     /**
@@ -134,5 +135,18 @@ public function downloadJadwalPdf($nomorSpbu)
         ->get();
     $pdf = Pdf::loadView('exports.jadwal_pdf', compact('jadwals'));
     return $pdf->download('jadwal_operator_'.$nomorSpbu.'.pdf');
+}
+
+public function absensiDetil($id)
+{
+    $spbu = Spbu::findOrFail($id);
+    $absensis = Absensi::with(['karyawan', 'nozle', 'produk'])
+        ->whereHas('karyawan', function($q) use ($spbu) {
+            $q->where('NomorSPBU', $spbu->NomorSPBU);
+        })
+        ->orderBy('Tanggal', 'desc')
+        ->get();
+
+    return view('absensiDetil', compact('spbu', 'absensis'));
 }
 }

@@ -9,12 +9,23 @@ use Illuminate\Support\Facades\Auth;
 
 class AbsensiPdfController extends Controller
 {
-    public function export()
-    {
-        $absensi = Absensi::with('karyawan')->get();
-        $pdf = PDF::loadView('exports.absensi_pdf', compact('absensi'));
-        return $pdf->download('absensi_karyawan.pdf');
-    }
+    
+    
+ public function export()
+{
+    $NoSpbu = Auth::user()->NomorSPBU;
+
+    $absensi = Absensi::with(['karyawan', 'nozle', 'produk'])
+        ->whereHas('karyawan', function ($query) use ($NoSpbu) {
+            $query->where('NomorSPBU', $NoSpbu);
+        })
+        ->orderBy('Tanggal', 'desc')
+        ->get();
+
+    $pdf = PDF::loadView('exports.absensi_pdf', compact('absensi'));
+    return $pdf->download('absensi_karyawan.pdf');
+}
+
     public function download()
     {
 
