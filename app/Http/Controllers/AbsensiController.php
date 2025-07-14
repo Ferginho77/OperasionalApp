@@ -6,66 +6,59 @@ use App\Models\BackupSession;
 use App\Models\JadwalOperator;
 use App\Models\Nozle;
 use App\Models\Produk;
-use Illuminate\Http\Request;
 use App\Models\Absensi;
 use App\Models\Karyawan;
-use Illuminate\Support\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 
 class AbsensiController extends Controller
 {
+    public function index()
+    {
+        $user = Auth::user();
+        $nomorSpbu = $user->NomorSPBU;
+        $tanggalHariIni = now()->toDateString();
 
-public function index()
-{
-    $user = Auth::user();
-    $nomorSpbu = $user->NomorSPBU;
-    $tanggalHariIni = now()->toDateString();
+        // Karyawan yang dijadwalkan hari ini
+        $jadwalKaryawanIds = JadwalOperator::where('NomorSPBU', $nomorSpbu)
+            ->where('Tanggal', $tanggalHariIni)
+            ->pluck('KaryawanId');
 
-    // Ambil ID karyawan yang dijadwalkan hari ini di SPBU ini
-    $jadwalKaryawanIds = JadwalOperator::where('NomorSPBU', $nomorSpbu)
-        ->where('Tanggal', $tanggalHariIni)
-        ->pluck('KaryawanId');
+        $karyawan = Karyawan::with(['totalizerAkhirTerakhir'])
+            ->whereIn('id', $jadwalKaryawanIds)
+            ->get();
 
-    // Ambil data karyawan yang sesuai jadwal
-    $karyawan = Karyawan::with(['totalizerAkhirTerakhir'])
-        ->whereIn('id', $jadwalKaryawanIds)
-        ->get();
+        // Nozle di SPBU ini
+        $nozle = Nozle::with('pulau')->whereHas('spbu', function($query) use ($nomorSpbu) {
+            $query->where('NomorSPBU', $nomorSpbu);
+        })->get();
 
-    // Ambil semua nozle di SPBU ini
-    $nozle = Nozle::with('pulau')->whereHas('spbu', function($query) use ($nomorSpbu) {
-        $query->where('NomorSPBU', $nomorSpbu);
-    })->get();
+        // Produk global
+        $produk = Produk::all();
 
-    // Produk bisa global
-    $produk = Produk::all();
+        // Absensi hari ini untuk SPBU ini
+        $absensi = Absensi::with(['karyawan', 'nozle', 'produk'])
+            ->whereHas('karyawan', function($q) use ($nomorSpbu) {
+                $q->where('NomorSPBU', $nomorSpbu);
+            })
+            ->where('Tanggal', $tanggalHariIni)
+            ->get();
 
-    // Ambil semua absensi hari ini untuk SPBU ini
-    $absensi = Absensi::with(['karyawan', 'nozle', 'produk'])
-        ->whereHas('karyawan', function($q) use ($nomorSpbu) {
-            $q->where('NomorSPBU', $nomorSpbu);
-        })
-        ->where('Tanggal', $tanggalHariIni)
-        ->get();
+        // Backup session aktif
+        $backupSessions = BackupSession::with(['backupOperator', 'absensi.nozle'])
+            ->whereNotNull('JamMulai')
+            ->whereNull('JamSelesai')
+            ->get();
 
-    // Ambil data backup session aktif
-    $backupSessions = BackupSession::with(['backupOperator', 'absensi.nozle'])
-        ->whereNotNull('JamMulai')
-        ->whereNull('JamSelesai')
-        ->get();
+        // Karyawan dijadwalkan tapi belum absen
+        $idYangAbsen = $absensi->pluck('KaryawanId')->toArray();
+        $tidakHadir = Karyawan::whereIn('id', $jadwalKaryawanIds)
+            ->whereNotIn('id', $idYangAbsen)
+            ->get();
 
-    // Cari karyawan yang dijadwalkan tapi belum absen
-    $idYangAbsen = $absensi->pluck('KaryawanId')->toArray();
-    $tidakHadir = Karyawan::whereIn('id', $jadwalKaryawanIds)
-        ->whereNotIn('id', $idYangAbsen)
-        ->get();
-
-    return view('absensi', compact('karyawan', 'nozle', 'produk', 'absensi', 'backupSessions', 'tidakHadir'));
-}
-
-
-
-
+        return view('absensi', compact('karyawan', 'nozle', 'produk', 'absensi', 'backupSessions', 'tidakHadir'));
+    }
 
     public function store(Request $request)
     {
@@ -90,8 +83,7 @@ public function index()
         return back()->with('success', 'Absensi masuk berhasil.');
     }
 
-
-     public function istirahat(Request $request)
+    public function istirahat(Request $request)
     {
         $request->validate([
             'TotalizerAkhir' => 'required|numeric'
@@ -106,8 +98,7 @@ public function index()
         return back()->with('success', 'Istirahat dimulai.');
     }
 
-
-     public function mulaiBackup(Request $request)
+    public function mulaiBackup(Request $request)
     {
         $request->validate([
             'AbsensiId' => 'required|exists:absensi,id',
@@ -170,44 +161,63 @@ public function index()
         return back()->with('success', 'Absensi pulang dicatat.');
     }
 
- public function rekap()
-{
-    $user = Auth::user();
-    $nomorSpbu = $user->NomorSPBU;
+    public function rekap()
+    {
+        $user = Auth::user();
+        $nomorSpbu = $user->NomorSPBU;
 
-    // Ambil semua jadwal operator di SPBU ini (tanpa filter tanggal)
-    $jadwal = JadwalOperator::with('karyawan')
-        ->where('NomorSPBU', $nomorSpbu)
-        ->orderBy('Tanggal', 'desc')
-        ->get();
+        // Semua jadwal operator di SPBU ini
+        $jadwal = JadwalOperator::with('karyawan')
+            ->where('NomorSPBU', $nomorSpbu)
+            ->orderBy('Tanggal', 'desc')
+            ->get();
 
-    // Ambil semua absensi di SPBU ini (tanpa filter tanggal)
-    $absensi = Absensi::with(['karyawan', 'nozle', 'produk'])
-        ->whereHas('karyawan', function($q) use ($nomorSpbu) {
-            $q->where('NomorSPBU', $nomorSpbu);
-        })
-        ->get();
+        // Semua absensi di SPBU ini
+        $absensi = Absensi::with(['karyawan', 'nozle', 'produk'])
+            ->whereHas('karyawan', function ($q) use ($nomorSpbu) {
+                $q->where('NomorSPBU', $nomorSpbu);
+            })
+            ->get();
 
-    // Buat array rekap
-    $rekap = [];
-    foreach ($jadwal as $j) {
-        $absen = $absensi->where('KaryawanId', $j->KaryawanId)
-                         ->where('Tanggal', $j->Tanggal)
-                         ->first();
-        $rekap[] = [
-            'nama' => $j->karyawan->Nama ?? '-',
-            'tanggal' => $j->Tanggal,
-            'shift' => ucfirst($j->Shift),
-            'status' => $absen ? 'Hadir' : 'Tidak Hadir',
-            'jam_masuk' => $absen ? ($absen->JamMasuk ? date('H:i', strtotime($absen->JamMasuk)) : '-') : '-',
-            'jam_istirahat' => $absen ? ($absen->JamIstirahatMulai ? date('H:i', strtotime($absen->JamIstirahatMulai)) : '-') : '-',
-            'jam_pulang' => $absen ? ($absen->JamPulang ? date('H:i', strtotime($absen->JamPulang)) : '-') : '-',
-            'nozle' => $absen ? ($absen->nozle->NamaNozle ?? '-') : '-',
-            'produk' => $absen ? ($absen->produk->NamaProduk ?? '-') : '-',
-        ];
+        // Array rekap absensi
+        $rekap = [];
+        foreach ($jadwal as $j) {
+            $absen = $absensi
+                ->where('KaryawanId', $j->KaryawanId)
+                ->where('Tanggal', $j->Tanggal)
+                ->first();
+
+            // Hitung totalizer utama dan backup
+            $totalizer_utama = ($absen && $absen->TotalizerAkhir && $absen->TotalizerAwal)
+                ? ($absen->TotalizerAkhir - $absen->TotalizerAwal)
+                : 0;
+
+            $totalizer_backup = 0;
+            if ($absen) {
+                $totalizer_backup = BackupSession::where('AbsensiId', $absen->id)
+                    ->whereNotNull('TotalizerAkhir')
+                    ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'));
+            }
+
+            $insentif = ($totalizer_utama + $totalizer_backup) * 100;
+
+            $rekap[] = [
+                'nama'             => $j->karyawan->Nama ?? '-',
+                'tanggal'          => $j->Tanggal,
+                'shift'            => ucfirst($j->Shift),
+                'status'           => $absen ? 'Hadir' : 'Tidak Hadir',
+                'jam_masuk'        => $absen && $absen->JamMasuk ? date('H:i', strtotime($absen->JamMasuk)) : '-',
+                'jam_istirahat'    => $absen && $absen->JamIstirahatMulai ? date('H:i', strtotime($absen->JamIstirahatMulai)) : '-',
+                'jam_pulang'       => $absen && $absen->JamPulang ? date('H:i', strtotime($absen->JamPulang)) : '-',
+                'nozle'            => $absen && $absen->nozle ? $absen->nozle->NamaNozle : '-',
+                'produk'           => $absen && $absen->produk ? $absen->produk->NamaProduk : '-',
+                'totalizer_utama'  => $totalizer_utama,
+                'totalizer_backup' => $totalizer_backup,
+                'insentif'         => $insentif,
+            ];
+        }
+
+        return view('rekapabsensi', compact('rekap'));
     }
-
-    return view('rekapabsensi', compact('rekap'));
-}
 }
 

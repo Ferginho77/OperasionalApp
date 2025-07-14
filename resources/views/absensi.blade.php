@@ -93,7 +93,7 @@
     <table class="table table-bordered">
         @if ($tidakHadir->count() > 0)
     <div class="alert alert-danger">
-        <strong>Operator Tidak Hadir Hari Ini:</strong>
+        <strong>Operator Belum Absen Hari Ini:</strong>
         <ul>
             @foreach ($tidakHadir as $operator)
                 <li>{{ $operator->Nama }}</li>
@@ -144,11 +144,11 @@
                     <td>{{ $a->nozle->NamaNozle ?? '-' }}</td>
                     <td>{{ $a->produk->NamaProduk ?? '-' }}</td>
                     <td>
-                        Utama: {{ number_format($r['totalizer_utama'], 0) }}L <br>
-                        Backup: {{ number_format($r['totalizer_backup'], 0) }}L
+                        Utama: {{ number_format($a['totalizer_utama'], 0) }}L <br>
+                        Backup: {{ number_format($a['totalizer_backup'], 0) }}L
                     </td>
                     <td>
-                        Rp {{ number_format($r['insentif'], 0, ',', '.') }}
+                        Rp {{ number_format($a['insentif'], 0, ',', '.') }}
                     </td>
                 </tr>
             @endforeach
