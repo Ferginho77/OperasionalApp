@@ -44,6 +44,8 @@ Route::middleware('auth')->group(function () {
         return Excel::download(new AbsensiExport, 'absensi_karyawan.xls');
     });
     Route::get('/download-absensi-pdf', [AbsensiPdfController::class, 'export']);
+    Route::get('/download-rekap', [AbsensiController::class, 'ExportRekap'])->name('absensi.download.xls');
+    Route::get('/download-absensi-pdf', [AbsensiPdfController::class, 'rekap']);
 });
 
 // ===================
@@ -84,4 +86,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/owner/{nomorSpbu}/download-jadwal', [OwnerController::class, 'downloadJadwalXls'])->name('owner.jadwal.download.xls');
     Route::get('/owner/{nomorSpbu}/download-jadwal-pdf', [OwnerController::class, 'downloadJadwalPdf'])->name('owner.jadwal.download.pdf');
     Route::get('/owner/spbu/{id}/absensi', [OwnerController::class, 'absensiDetil'])->name('owner.spbu.absensi');
+    Route::get('/owner/spbu/{id}/absensi/export-excel', [OwnerController::class, 'exportAbsensiDetilExcel'])->name('owner.absensiDetil.excel');
+    Route::get('/owner/spbu/{id}/absensi/export-pdf', [OwnerController::class, 'exportAbsensiDetilPdf'])->name('owner.absensiDetil.pdf');
 });

@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Absensi;
+use App\Models\BackupSession;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -20,7 +21,7 @@ class AbsensiExport implements FromCollection, WithHeadings
             ? $item->TotalizerAkhir - $item->TotalizerAwal
             : 0;
 
-        $totalizer_backup = \App\Models\BackupSession::where('AbsensiId', $item->id)
+        $totalizer_backup = BackupSession::where('AbsensiId', $item->id)
             ->whereNotNull('TotalizerAkhir')
             ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'));
 

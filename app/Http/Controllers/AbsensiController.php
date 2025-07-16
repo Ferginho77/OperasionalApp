@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AbsensiDetilExport;
 use App\Models\BackupSession;
 use App\Models\JadwalOperator;
 use App\Models\Nozle;
 use App\Models\Produk;
 use App\Models\Absensi;
 use App\Models\Karyawan;
+use App\Models\Spbu;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AbsensiController extends Controller
 {
@@ -219,5 +223,14 @@ class AbsensiController extends Controller
 
         return view('rekapabsensi', compact('rekap'));
     }
+
+
+    public function ExportRekap()
+{
+    $nomorSpbu = Auth::user()->NomorSPBU;
+    return Excel::download(new AbsensiDetilExport($nomorSpbu), 'absensi_'.$nomorSpbu.'.xlsx');
+}
+
+
 }
 

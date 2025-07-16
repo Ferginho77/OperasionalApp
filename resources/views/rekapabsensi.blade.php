@@ -6,8 +6,10 @@
         <div class="card-body">
             <h3>Rekap Absensi Operator SPBU</h3>
             <div class="mb-3">
-                <a href="{{ url('/download-absensi') }}" class="btn btn-success">Download Excel <i class="fa-solid fa-download"></i></a>
-                <a href="{{ url('/download-absensi-pdf') }}" class="btn btn-primary">Download PDF <i class="fa-solid fa-download"></i></a>
+               <a href="{{ url('/download-rekap') }}" class="btn btn-success">
+                    Download Dokumen <i class="fa-solid fa-download"></i>
+            </a>
+            <a href="{{ url('/download-absensi-pdf') }}" class="btn btn-primary">Download PDF <i class="fa-solid fa-download"></i></a>
             </div>
             <div class="table-responsive">
                 <table class="table table-bordered table-striped">

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AbsensiDetilExport;
 use App\Models\Absensi;
+use App\Models\BackupSession;
 use App\Models\JadwalOperator;
 use App\Models\Karyawan;
 use App\Models\Nozle;
@@ -12,6 +14,7 @@ use Illuminate\Http\Request;
 use App\Exports\JadwalOperatorExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 
 class OwnerController extends Controller
 {
@@ -140,6 +143,12 @@ public function downloadJadwalPdf($nomorSpbu)
 public function absensiDetil($id)
 {
     $spbu = Spbu::findOrFail($id);
+
+    $jadwals = JadwalOperator::with('karyawan')
+        ->where('NomorSPBU', $spbu->NomorSPBU)
+        ->orderBy('Tanggal', 'desc')
+        ->get();
+
     $absensis = Absensi::with(['karyawan', 'nozle', 'produk'])
         ->whereHas('karyawan', function($q) use ($spbu) {
             $q->where('NomorSPBU', $spbu->NomorSPBU);
@@ -147,6 +156,106 @@ public function absensiDetil($id)
         ->orderBy('Tanggal', 'desc')
         ->get();
 
-    return view('absensiDetil', compact('spbu', 'absensis'));
+    $data = [];
+    foreach ($jadwals as $jadwal) {
+        $absen = $absensis
+            ->where('KaryawanId', $jadwal->KaryawanId)
+            ->where('Tanggal', $jadwal->Tanggal)
+            ->first();
+
+        $hadir = $absen ? true : false;
+
+        $totalizer_utama = ($hadir && $absen->TotalizerAkhir && $absen->TotalizerAwal)
+            ? ($absen->TotalizerAkhir - $absen->TotalizerAwal)
+            : 0;
+
+        $totalizer_backup = $hadir
+            ? BackupSession::where('AbsensiId', $absen->id)
+                ->whereNotNull('TotalizerAkhir')
+                ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'))
+            : 0;
+
+        $data[] = [
+            'nama'             => $jadwal->karyawan->Nama ?? '-',
+            'role'             => $jadwal->karyawan->Role ?? '-',
+            'tanggal'          => $jadwal->Tanggal,
+            'status'           => $hadir ? 'Hadir' : 'Tidak Hadir',
+            'jam_masuk'        => $hadir && $absen->JamMasuk ? date('H:i', strtotime($absen->JamMasuk)) : '-',
+            'jam_istirahat'    => $hadir && $absen->JamIstirahatMulai ? date('H:i', strtotime($absen->JamIstirahatMulai)) : '-',
+            'jam_kembali'      => $hadir && $absen->JamIstirahatKembali ? date('H:i', strtotime($absen->JamIstirahatKembali)) : '-',
+            'jam_pulang'       => $hadir && $absen->JamPulang ? date('H:i', strtotime($absen->JamPulang)) : '-',
+            'nozle'            => $hadir ? ($absen->nozle->NamaNozle ?? '-') : '-',
+            'produk'           => $hadir ? ($absen->produk->NamaProduk ?? '-') : '-',
+            'totalizer_utama'  => $totalizer_utama,
+            'totalizer_backup' => $totalizer_backup,
+            'insentif'         => ($totalizer_utama + $totalizer_backup) * 100,
+        ];
+    }
+
+    return view('absensiDetil', compact('spbu', 'data'));
 }
+
+public function exportAbsensiDetilExcel($id)
+{
+    $spbu = Spbu::findOrFail($id);
+    return Excel::download(new AbsensiDetilExport($spbu->NomorSPBU), 'absensi_'.$spbu->NomorSPBU.'.xlsx');
+}
+
+public function exportAbsensiDetilPdf($id)
+{
+    $spbu = Spbu::findOrFail($id);
+
+    // Copy logic dari absensiDetil untuk $data
+    $jadwals = JadwalOperator::with('karyawan')
+        ->where('NomorSPBU', $spbu->NomorSPBU)
+        ->orderBy('Tanggal', 'desc')
+        ->get();
+
+    $absensis = Absensi::with(['karyawan', 'nozle', 'produk'])
+        ->whereHas('karyawan', function($q) use ($spbu) {
+            $q->where('NomorSPBU', $spbu->NomorSPBU);
+        })
+        ->orderBy('Tanggal', 'desc')
+        ->get();
+
+    $data = [];
+    foreach ($jadwals as $jadwal) {
+        $absen = $absensis
+            ->where('KaryawanId', $jadwal->KaryawanId)
+            ->where('Tanggal', $jadwal->Tanggal)
+            ->first();
+
+        $hadir = $absen ? true : false;
+        $totalizer_utama = ($hadir && $absen->TotalizerAkhir && $absen->TotalizerAwal)
+            ? ($absen->TotalizerAkhir - $absen->TotalizerAwal)
+            : 0;
+        $totalizer_backup = 0;
+        if ($hadir) {
+            $totalizer_backup = BackupSession::where('AbsensiId', $absen->id)
+                ->whereNotNull('TotalizerAkhir')
+                ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'));
+        }
+        $insentif = ($totalizer_utama + $totalizer_backup) * 100;
+
+        $data[] = [
+            'nama'             => $jadwal->karyawan->Nama ?? '-',
+            'role'             => $jadwal->karyawan->Role ?? '-',
+            'tanggal'          => $jadwal->Tanggal,
+            'status'           => $hadir ? 'Hadir' : 'Tidak Hadir',
+            'jam_masuk'        => $hadir && $absen->JamMasuk ? date('H:i', strtotime($absen->JamMasuk)) : '-',
+            'jam_istirahat'    => $hadir && $absen->JamIstirahatMulai ? date('H:i', strtotime($absen->JamIstirahatMulai)) : '-',
+            'jam_kembali'      => $hadir && $absen->JamIstirahatKembali ? date('H:i', strtotime($absen->JamIstirahatKembali)) : '-',
+            'jam_pulang'       => $hadir && $absen->JamPulang ? date('H:i', strtotime($absen->JamPulang)) : '-',
+            'nozle'            => $hadir && $absen->nozle ? $absen->nozle->NamaNozle : '-',
+            'produk'           => $hadir && $absen->produk ? $absen->produk->NamaProduk : '-',
+            'totalizer_utama'  => $totalizer_utama,
+            'totalizer_backup' => $totalizer_backup,
+            'insentif'         => $insentif,
+        ];
+    }
+
+    $pdf = Pdf::loadView('exports.absensi_detil_pdf', compact('spbu', 'data'));
+    return $pdf->download('absensi_'.$spbu->NomorSPBU.'.pdf');
+}
+
 }
