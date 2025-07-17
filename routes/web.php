@@ -46,6 +46,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/download-absensi-pdf', [AbsensiPdfController::class, 'export']);
     Route::get('/download-rekap', [AbsensiController::class, 'ExportRekap'])->name('absensi.download.xls');
     Route::get('/download-absensi-pdf', [AbsensiPdfController::class, 'rekap']);
+   Route::get('/jamkerja/{id}', [AbsensiController::class, 'hitungJamKerja'])->name('absensi.jamkerja');
 });
 
 // ===================
@@ -60,6 +61,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/download-jadwal-pdf', [AbsensiPdfController::class, 'download'])->name('jadwal.pdf.download');
     Route::get('/kalender', [JadwalOperatorController::class, 'kalender'])->name('kalender');
     Route::get('/kalender-api', [JadwalOperatorController::class, 'kalenderApi'])->name('kalender.api');
+    Route::post('/jadwal/upload', [JadwalOperatorController::class, 'storeExcel'])->name('jadwal.upload');
 });
 
 // ===================
@@ -89,3 +91,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/owner/spbu/{id}/absensi/export-excel', [OwnerController::class, 'exportAbsensiDetilExcel'])->name('owner.absensiDetil.excel');
     Route::get('/owner/spbu/{id}/absensi/export-pdf', [OwnerController::class, 'exportAbsensiDetilPdf'])->name('owner.absensiDetil.pdf');
 });
+
+
+// ===================
+// KEHADIRAN
+// ===================
+
+Route::post('/kehadiran', [KehadiranController::class, 'store']);
+Route::get('/kehadiran', [KehadiranController::class, 'index']);

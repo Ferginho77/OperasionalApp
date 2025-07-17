@@ -34,6 +34,8 @@
                 <tr>
                     <th>Nama</th>
                     <th>NIP</th>
+                    <th>CV</th>
+                    <th>Data Pribadi</th>
                     <th>Role</th>
                     <th>Aksi</th>
                 </tr>
@@ -43,20 +45,34 @@
                 <tr>
                     <td>{{ $k->Nama }}</td>
                     <td>{{ $k->Nip }}</td>
+                    <td>
+                        @if($k->Cv)
+                            <a href="{{ asset('storage/'.$k->Cv) }}" target="_blank" class="btn btn-sm btn-outline-info">Lihat CV</a>
+                        @else
+                            <span class="text-muted">-</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if($k->FilePribadi)
+                            <a href="{{ asset('storage/'.$k->FilePribadi) }}" target="_blank" class="btn btn-sm btn-outline-info">Lihat File</a>
+                        @else
+                            <span class="text-muted">-</span>
+                        @endif
+                    </td>
                     <td>{{ $k->Role }}</td>
                     <td>
                         <button class="btn btn-primary btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#EditModal"
-                        data-id="{{ $k->id }}"
-                        data-nama="{{ $k->Nama }}"
-                        data-nip="{{ $k->Nip }}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#EditModal"
+                            data-id="{{ $k->id }}"
+                            data-nama="{{ $k->Nama }}"
+                            data-nip="{{ $k->Nip }}"
                         >Edit</button>
                         <form action="{{ route('karyawan.destroy', $k->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin ingin menghapus karyawan ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-danger">Hapus</button>
-                            </form>
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-sm btn-danger">Hapus</button>
+                        </form>
                     </td>
                 </tr>
                 @endforeach

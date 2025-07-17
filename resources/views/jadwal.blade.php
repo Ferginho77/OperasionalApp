@@ -36,6 +36,7 @@
             <select name="Shift" class="form-control" required>
                 <option value="pagi" {{ old('Shift', $editJadwal->Shift ?? '') == 'pagi' ? 'selected' : '' }}>Pagi</option>
                 <option value="sore" {{ old('Shift', $editJadwal->Shift ?? '') == 'sore' ? 'selected' : '' }}>Sore</option>
+                <option value="malam" {{ old('Shift', $editJadwal->Shift ?? '') == 'malam' ? 'selected' : '' }}>Malam</option>
             </select>
         </div>
         <div class="col-md-2 mb-3 d-flex align-items-end">
@@ -47,6 +48,17 @@
     </form>
 
     <a href="/kalender" class="btn btn-outline-primary"> Lihat Jadwal Operator</a>
+   <form id="uploadForm" action="{{ route('jadwal.upload') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    
+    <!-- Hidden File Input -->
+    <input type="file" name="file" id="fileInput" class="d-none" accept=".xlsx,.xls" required>
+
+    <!-- Styled Upload Button -->
+    <button type="button" class="btn btn-outline-success" onclick="document.getElementById('fileInput').click();">
+        Upload Dokumen
+    </button>
+</form>
     {{-- Tabel Jadwal --}}
     <div class="row">
         <div class="col-md-6 mb-4 mb-md-0">
@@ -98,4 +110,11 @@
     </div>
     
 </div>
+<script>
+    document.getElementById('fileInput').addEventListener('change', function () {
+        if (this.files.length > 0) {
+            document.getElementById('uploadForm').submit();
+        }
+    });
+</script>
 @endsection

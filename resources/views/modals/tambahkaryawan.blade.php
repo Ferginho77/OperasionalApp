@@ -9,7 +9,7 @@
                 <div class="modal-body">
                     <div class="container">
                         <h3>Tambah Karyawan</h3>
-                        <form action="{{ route('karyawan.store') }}" method="POST">
+                        <form action="{{ route('karyawan.store') }}" method="POST"  enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label">Nama</label>
@@ -20,6 +20,14 @@
                                 <label class="form-label">NIP</label>
                                 <input type="text" name="Nip" class="form-control" required>
                             </div>
+                             <div class="mb-2">
+                                    <label for="cv" class="form-label">Upload CV (PDF)</label>
+                                    <input type="file" name="Cv" id="Cv" class="form-control" accept="application/pdf" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label for="FilePribadi" class="form-label">File Pribadi (PDF)</label>
+                                    <input type="file" name="FilePribadi" id="FilePribadi" class="form-control" accept="application/pdf" required>
+                                </div>
                             <button type="submit" class="btn btn-outline-primary">Tambah</button>
                         </form>
                     </div>

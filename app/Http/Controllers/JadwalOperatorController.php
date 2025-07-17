@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Exports\AbsensiExport;
 use App\Exports\JadwalOperatorExport;
+use App\Imports\JadwalImport;
 use App\Models\JadwalOperator;
 use App\Models\Karyawan;
 use App\Models\Spbu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
 
 class JadwalOperatorController extends Controller
 {
@@ -42,7 +44,7 @@ class JadwalOperatorController extends Controller
         $request->validate([
             'KaryawanId' => 'required|exists:karyawan,id',
             'Tanggal' => 'required|date',
-            'Shift' => 'required|in:pagi,sore',
+            'Shift' => 'required|in:pagi,sore,malam',
         ]);
 
         $nomorSpbu = Auth::user()->NomorSPBU;
@@ -60,30 +62,29 @@ class JadwalOperatorController extends Controller
     // Update data jadwal
     public function update(Request $request, $id)
     {
+        // Temukan jadwal berdasarkan ID atau gagal
         $jadwal = JadwalOperator::findOrFail($id);
 
+        // Validasi input dari form
         $request->validate([
             'KaryawanId' => 'required|exists:karyawan,id',
             'Tanggal' => 'required|date',
-            'Shift' => 'required|in:pagi,sore',
+            'Shift' => 'required|in:pagi,sore,malam', // Perbaikan sintaks array 'in:'
+            // 'NomorSPBU' => 'required|string|max:50', // Tambahkan jika NomorSPBU diupdate dari form
         ]);
 
-        $bentrok = JadwalOperator::where('Tanggal', $request->Tanggal)
-            ->where('Shift', $request->Shift)
-            ->where('NomorSPBU', $jadwal->NomorSPBU)
-            ->where('id', '!=', $jadwal->id)
-            ->exists();
-
-        if ($bentrok) {
-            return back()->withErrors('Shift ini sudah digunakan di Tanggal tersebut.');
-        }
-
+        // Update data jadwal
         $jadwal->update([
             'KaryawanId' => $request->KaryawanId,
             'Tanggal' => $request->Tanggal,
             'Shift' => $request->Shift,
+            // Jika NomorSPBU bisa diubah dari form, tambahkan baris di bawah:
+            // 'NomorSPBU' => $request->NomorSPBU,
+            // Jika NomorSPBU tidak diubah, tidak perlu ditambahkan di sini,
+            // nilai lama akan tetap dipertahankan.
         ]);
 
+        // Redirect kembali ke halaman daftar jadwal dengan pesan sukses
         return redirect()->route('jadwal')->with('success', 'Jadwal berhasil diperbarui.');
     }
 
@@ -141,4 +142,24 @@ class JadwalOperatorController extends Controller
    $nomorSpbu = Auth::user()->NomorSPBU;
     return Excel::download(new JadwalOperatorExport($nomorSpbu), 'jadwal_operator.xls');
 }
+
+     public function storeExcel(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:xlsx,xls|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            Excel::import(new JadwalImport, $request->file('file'));
+            return redirect()->back()->with('success', 'Jadwal berhasil diunggah!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengunggah jadwal: ' . $e->getMessage());
+        }
+    }
 }

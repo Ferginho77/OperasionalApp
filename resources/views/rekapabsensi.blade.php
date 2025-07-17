@@ -23,12 +23,14 @@
                             <th>Jam Masuk</th>
                             <th>Jam Istirahat</th>
                             <th>Jam Pulang</th>
+                            <th>Jam Kerja</th> <!-- Tambahkan ini -->
                             <th>Nozle</th>
                             <th>Produk</th>
                             <th>Totalizer</th>
                             <th>Insentif</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         @forelse($rekap as $i => $r)
                             <tr>
@@ -46,6 +48,7 @@
                                 <td>{{ $r['jam_masuk'] }}</td>
                                 <td>{{ $r['jam_istirahat'] }}</td>
                                 <td>{{ $r['jam_pulang'] }}</td>
+                                <td>{{ $r['jam_kerja'] }}</td> <!-- Tambahan -->
                                 <td>{{ $r['nozle'] }}</td>
                                 <td>{{ $r['produk'] }}</td>
                                 <td>
@@ -56,10 +59,11 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="12" class="text-center">Tidak ada data jadwal.</td>
+                                <td colspan="13" class="text-center">Tidak ada data jadwal.</td>
                             </tr>
                         @endforelse
                     </tbody>
+
                 </table>
             </div>
         </div>

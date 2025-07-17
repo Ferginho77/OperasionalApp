@@ -56,28 +56,36 @@ class ManajemenController extends Controller
 
 
 
-    public function storeKaryawan(Request $request)
-    {
-        $request->validate([
-            'Nama' => 'required|string|max:255',
-            'Role' => 'required|in:Operator',
-            'Nip' => 'required|string|max:20|',
-            
-        ]);
+  public function storeKaryawan(Request $request)
+{
+    $request->validate([
+        'Nama' => 'required|string|max:255',
+        'Role' => 'required|in:Operator',
+        'Nip' => 'required|string|max:20',
+        'Cv' => 'required|file|mimes:pdf|max:2048',
+        'FilePribadi' => 'required|file|mimes:pdf|max:2048',
+    ]);
 
-        $nomorSpbu = Auth::user()->NomorSPBU;
+    $nomorSpbu = Auth::user()->NomorSPBU;
 
-        Karyawan::create([
-            'Nama' => $request->Nama,
-            'Role' => $request->Role,
-            'Nip' => $request->Nip,
-            'NomorSPBU' => $nomorSpbu,
-        ]);
+    $CvOriginalName = $request->file('Cv')->getClientOriginalName();
+    $filePribadiOriginalName = $request->file('FilePribadi')->getClientOriginalName();
 
-        return redirect()->back()
-            ->withErrors(['manajemen' => 'Nip Sudah Terdaftar.'])
-            ->withInput();
-    }
+    $Cv = $request->file('Cv')->storeAs('Cv', $CvOriginalName, 'public');
+    $Filepribadi = $request->file('FilePribadi')->storeAs('FilePribadi', $filePribadiOriginalName, 'public');
+
+    Karyawan::create([
+        'Nama' => $request->Nama,
+        'Role' => $request->Role,
+        'Nip' => $request->Nip,
+        'NomorSPBU' => $nomorSpbu,
+        'Cv' => $Cv,
+        'FilePribadi' => $Filepribadi,
+    ]);
+
+    return redirect()->route('manajemen')->with('success', 'Karyawan berhasil ditambahkan.');
+}
+
 
     public function UpdateKaryawan(Request $request)
 {

@@ -15,6 +15,8 @@ class Karyawan extends Model
         'Nip',
         'Role',
         'NomorSPBU',
+        'Cv',
+        'FilePribadi',
     ];
 
     public function absensis()
