@@ -97,5 +97,4 @@ Route::middleware('auth')->group(function () {
 // KEHADIRAN
 // ===================
 
-Route::post('/kehadiran', [KehadiranController::class, 'store']);
-Route::get('/kehadiran', [KehadiranController::class, 'index']);
+// Route::get('/kehadiran', [KehadiranController::class, 'index']);
