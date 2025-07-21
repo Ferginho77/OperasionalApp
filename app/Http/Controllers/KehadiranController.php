@@ -2,12 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\KehadiranExport;
 use App\Models\Kehadiran; // Pastikan model Kehadiran sudah di-import
+use App\Models\Spbu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log; // Untuk logging
+use Maatwebsite\Excel\Facades\Excel;
 
 class KehadiranController extends Controller
 {
+
+   public function index()
+{
+    $user = Auth::user();
+    $spbu = Spbu::where('NomorSPBU', $user->NomorSPBU)->first();
+
+    if (!$spbu) {
+        // Handle the case where the SPBU is not found
+        return view('kehadiran', ['kehadirans' => collect([])]);
+    }
+
+    $SpbuId = $spbu->id;
+
+    $kehadirans = Kehadiran::with('karyawan')
+        ->where('SpbuId', $SpbuId) // Replace with correct column name
+        ->orderBy('WaktuMasuk', 'desc')
+        ->get();
+
+    return view('kehadiran', compact('kehadirans'));
+}
+
+
     /**
      * Menyimpan record absensi masuk baru.
      * Hanya untuk absen masuk pertama kali dalam sehari.
@@ -119,4 +145,10 @@ class KehadiranController extends Controller
             return response()->json(['message' => 'Gagal menyimpan absen pulang.', 'error' => $e->getMessage()], 500);
         }
     }
+
+   public function downloadKehadiranXls()
+{
+    return Excel::download(new KehadiranExport(), 'kehadiran_karyawan.xls');
+}
+
 }

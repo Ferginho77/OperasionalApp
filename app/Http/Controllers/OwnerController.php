@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exports\AbsensiDetilExport;
+use App\Exports\KehadiranDetilExport;
 use App\Models\Absensi;
 use App\Models\BackupSession;
 use App\Models\JadwalOperator;
 use App\Models\Karyawan;
+use App\Models\Kehadiran;
 use App\Models\Nozle;
 use App\Models\Pulau;
 use App\Models\Spbu;
@@ -54,6 +56,12 @@ class OwnerController extends Controller
          $spbus = Spbu::all();
 
         return view('absensiKaryawan', compact('karyawan', 'absensi', 'spbus'));
+    }
+
+    public function ShowKehadiran(){
+         $spbus = Spbu::all();
+
+        return view('kehadiranKaryawan', compact('spbus'));
     }
 
     /**
@@ -188,17 +196,30 @@ public function absensiDetil($id)
             'produk'           => $hadir ? ($absen->produk->NamaProduk ?? '-') : '-',
             'totalizer_utama'  => $totalizer_utama,
             'totalizer_backup' => $totalizer_backup,
-            'insentif'         => ($totalizer_utama + $totalizer_backup) * 100,
+            'insentif'         => ($totalizer_utama + $totalizer_backup) * 2.5,
         ];
     }
 
     return view('absensiDetil', compact('spbu', 'data'));
 }
 
+ public function kehadiranDetil($id)
+{
+    $spbu = Spbu::findOrFail($id);
+
+    $kehadirans = Kehadiran::with('karyawan')
+        ->where('SpbuId', $spbu->id)
+        ->orderBy('WaktuMasuk', 'desc')
+        ->get();
+
+    return view('kehadiranDetil', compact('spbu', 'kehadirans'));
+}
+
+
 public function exportAbsensiDetilExcel($id)
 {
     $spbu = Spbu::findOrFail($id);
-    return Excel::download(new AbsensiDetilExport($spbu->NomorSPBU), 'absensi_'.$spbu->NomorSPBU.'.xlsx');
+    return Excel::download(new AbsensiDetilExport($spbu->NomorSPBU), 'penugasan_'.$spbu->NomorSPBU.'.xlsx');
 }
 
 public function exportAbsensiDetilPdf($id)
@@ -235,7 +256,7 @@ public function exportAbsensiDetilPdf($id)
                 ->whereNotNull('TotalizerAkhir')
                 ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'));
         }
-        $insentif = ($totalizer_utama + $totalizer_backup) * 100;
+        $insentif = ($totalizer_utama + $totalizer_backup) * 2.5;
 
         $data[] = [
             'nama'             => $jadwal->karyawan->Nama ?? '-',
@@ -255,7 +276,26 @@ public function exportAbsensiDetilPdf($id)
     }
 
     $pdf = Pdf::loadView('exports.absensi_detil_pdf', compact('spbu', 'data'));
-    return $pdf->download('absensi_'.$spbu->NomorSPBU.'.pdf');
+    return $pdf->download('penugasan'.$spbu->NomorSPBU.'.pdf');
 }
 
+public function exportKehadiranDetilPdf($id)
+{
+    $spbu = Spbu::findOrFail($id);
+
+    $kehadirans = Kehadiran::with('karyawan')
+        ->where('SpbuId', $spbu->id)
+        ->orderBy('WaktuMasuk', 'desc')
+        ->get();
+
+    $pdf = Pdf::loadView('exports.kehadiran_detil_pdf', compact('spbu', 'kehadirans'));
+
+    return $pdf->download('kehadiran_' . $spbu->NomorSPBU . '.pdf');
+}
+
+public function exportKehadiranDetilExcel($id)
+{
+    $spbu = Spbu::findOrFail($id);
+    return Excel::download(new KehadiranDetilExport($spbu), 'kehadiran_' . $spbu->NomorSPBU . '.xlsx');
+}
 }

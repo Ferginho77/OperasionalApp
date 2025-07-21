@@ -24,8 +24,8 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav ms-auto">
         <a class="nav-link active" aria-current="page" href="/owner">Home</a>
-        <a class="nav-link" href="/absensiKaryawan">Absensi</a>
-        <a class="nav-link" href="#">Pengadaan</a>
+        <a class="nav-link" href="/absensiKaryawan">Absensi Penugasan</a>
+        <a class="nav-link" href="/kehadiranKaryawan">Kehadiran Karyawan</a>
             <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Apakah Yakin Untuk Meninggalkan Aplikasi?')">
                 @csrf
                 <button class="nav-link text-danger" type="submit">Logout</button>

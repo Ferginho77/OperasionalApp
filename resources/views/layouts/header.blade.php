@@ -24,7 +24,7 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav ms-auto">
         <a class="nav-link active" aria-current="page" href="/dashboard">Home</a>
-        <a class="nav-link" href="/absensi">Absensi</a>
+        <a class="nav-link" href="/absensi">Penugasan</a>
         <a class="nav-link" href="/manajemen">Manajemen</a>
         <a class="nav-link" href="/jadwal">Jadwal Operator</a>
         <a class="nav-link" href="/rekapabsensi">Rekap Absensi</a>

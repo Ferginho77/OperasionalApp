@@ -52,7 +52,7 @@ class AbsensiDetilExport implements FromCollection, WithHeadings
                     ->whereNotNull('TotalizerAkhir')
                     ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'));
             }
-            $insentif = ($totalizer_utama + $totalizer_backup) * 100;
+            $insentif = ($totalizer_utama + $totalizer_backup) * 2.5;
 
             $rows[] = [
                 'No' => $no++,

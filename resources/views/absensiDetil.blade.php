@@ -1,5 +1,5 @@
 {{-- filepath: resources/views/absensiDetil.blade.php --}}
-@extends('layouts.header')
+@extends('layouts.app')
 
 @section('content')
 <div class="container mt-4">
@@ -58,12 +58,16 @@
                     @endforelse
                 </tbody>
             </table>
-            <a href="{{ route('owner.absensiDetil.excel') }}" class="btn btn-success">
-                Download Excel <i class="fa-solid fa-download"></i>
+           @if($spbu)
+                <a href="{{ route('owner.absensiDetil.excel', ['id' => $spbu->id]) }}" class="btn btn-success">
+                    Download Excel <i class="fa-solid fa-file-excel"></i>
+                </a>
+            @endif
+
+            <a href="{{ route('owner.absensiDetil.pdf', $spbu->id) }}" class="btn btn-primary">
+                Download PDF <i class="fa-solid fa-file-pdf"></i>
             </a>
-            <a href="{{ route('owner.absensiDetil.pdf') }}" class="btn btn-primary">
-                Download PDF <i class="fa-solid fa-download"></i>
-            </a>
+
         </div>
     </div>
 </div>

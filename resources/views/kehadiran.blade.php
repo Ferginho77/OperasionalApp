@@ -1,30 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Data Absensi</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="container mt-4">
+@extends('layouts.header')
+@section('content')
+<div class="container mt-4">
     <h2>Data Absensi</h2>
-
-    <table class="table table-bordered">
+<div class="card">
+    <div class="card-body">
+         <table class="table table-bordered">
         <thead>
             <tr>
-                <th>#</th>
-                <th>Karyawan ID</th>
+                <th>No</th>
+                <th>Karyawan</th>
                 <th>Waktu Masuk</th>
                 <th>Waktu Pulang</th>
-                <th>SPBU ID</th>
             </tr>
         </thead>
         <tbody>
-            @forelse ($kehadiran as $item)
+            @forelse ($kehadirans as $item)
             <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $item->KaryawanId }}</td>
+                <td>{{ $item->Karyawan->Nama }}</td>
                 <td>{{ $item->WaktuMasuk }}</td>
                 <td>{{ $item->WaktuPulang ?? '-' }}</td>
-                <td>{{ $item->SpbuId }}</td>
             </tr>
             @empty
             <tr>
@@ -33,5 +28,13 @@
             @endforelse
         </tbody>
     </table>
-</body>
-</html>
+     <div class="mb-3">
+               <a href="{{ url('/download-kehadiran') }}" class="btn btn-success">
+                    Download Dokumen <i class="fa-solid fa-download"></i>
+            </a>
+            <a href="{{ url('/download-kehadiran-pdf') }}" class="btn btn-primary">Download PDF <i class="fa-solid fa-download"></i></a>
+            </div>
+    </div>
+</div>
+</div>
+@endsection

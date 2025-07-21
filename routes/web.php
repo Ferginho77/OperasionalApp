@@ -88,8 +88,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/owner/{nomorSpbu}/download-jadwal', [OwnerController::class, 'downloadJadwalXls'])->name('owner.jadwal.download.xls');
     Route::get('/owner/{nomorSpbu}/download-jadwal-pdf', [OwnerController::class, 'downloadJadwalPdf'])->name('owner.jadwal.download.pdf');
     Route::get('/owner/spbu/{id}/absensi', [OwnerController::class, 'absensiDetil'])->name('owner.spbu.absensi');
-    Route::get('/owner/spbu/{id}/absensi/export-excel', [OwnerController::class, 'exportAbsensiDetilExcel'])->name('owner.absensiDetil.excel');
-    Route::get('/owner/spbu/{id}/absensi/export-pdf', [OwnerController::class, 'exportAbsensiDetilPdf'])->name('owner.absensiDetil.pdf');
+    Route::get('/absensiDetil-excel/{id}', [OwnerController::class, 'exportAbsensiDetilExcel'])->name('owner.absensiDetil.excel');
+    Route::get('/absensiDetil-pdf/{id}', [OwnerController::class, 'exportAbsensiDetilPdf'])->name('owner.absensiDetil.pdf');
+    Route::get('/kehadiranKaryawan', [OwnerController::class, 'ShowKehadiran'])->name('kehadiran.karyawan');
+    Route::get('/owner/spbu/{id}/kehadiran', [OwnerController::class, 'kehadiranDetil'])->name('owner.kehadiran.detil');
+    Route::get('/kehadiran-detil-pdf/{id}', [OwnerController::class, 'exportKehadiranDetilPdf'])->name('owner.kehadiran.detil.pdf');
+    Route::get('/kehadiran-detil-excel/{id}', [OwnerController::class, 'exportKehadiranDetilExcel'])->name('owner.kehadiran.detil.excel');
+    
 });
 
 
@@ -97,4 +102,6 @@ Route::middleware('auth')->group(function () {
 // KEHADIRAN
 // ===================
 
-// Route::get('/kehadiran', [KehadiranController::class, 'index']);
+Route::get('/kehadiran', [KehadiranController::class, 'index'])->name('kehadiran')->middleware('auth');
+Route::get('/download-kehadiran-pdf', [AbsensiPdfController::class, 'kehadiran'])->name('kehadiran.pdf.download');
+Route::get('/download-kehadiran', [KehadiranController::class, 'downloadkehadiranXls'])->name('kehadiran.download.xls');

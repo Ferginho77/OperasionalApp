@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Absensi;
 use App\Models\JadwalOperator;
+use App\Models\Kehadiran;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use App\Models\BackupSession;
@@ -97,5 +98,26 @@ class AbsensiPdfController extends Controller
 
     $pdf = Pdf::loadView('exports.absensi_detil_pdf', compact('spbu', 'data'));
     return $pdf->download('absensi_'.$nomorSpbu.'.pdf');
+    }
+
+    public function kehadiran()
+    {
+        $user = Auth::user();
+        $spbu = Spbu::where('NomorSPBU', $user->NomorSPBU)->first();
+
+        if (!$spbu) {
+            // Handle the case where the SPBU is not found
+            return view('kehadiran', ['kehadirans' => collect([])]);
+        }
+
+        $SpbuId = $spbu->id;
+
+        $kehadirans = Kehadiran::with('karyawan')
+            ->where('SpbuId', $SpbuId) // Replace with correct column name
+            ->orderBy('WaktuMasuk', 'desc')
+            ->get();
+
+        $pdf = PDF::loadView('exports.kehadiran_pdf', compact('kehadirans'));
+        return $pdf->download('kehadiran_karyawan.pdf');
     }
 }

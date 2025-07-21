@@ -89,7 +89,7 @@
 </div>
 
 <div class="container mt-4">
-    <h3>Data Absensi</h3>
+    <h3>Data Penugasan</h3>
     <table class="table table-bordered">
         @if ($tidakHadir->count() > 0)
     <div class="alert alert-danger">
