@@ -16,13 +16,13 @@ class SpbuSeeder extends Seeder
             [
                 'NamaSPBU' => 'SPBU Pertamina LeuwiGajah',
                 'NomorSPBU' => '24.07.085',
-                'Alamat' => 'Jl. Raya Cimahi No. 123, Cimahi',
+                'Alamat' => 'Jl. Mahar Martanegara No.131, Utama, Kec. Cimahi Sel., Kota Cimahi, Jawa Barat 40533',
                 'UserId' => 4,
             ],
             [
                 'NamaSPBU' => 'SPBU Pertamina Soreang',
                 'NomorSPBU' => '34.654.321',
-                'Alamat' => 'Jl. Raya Soreang No. 123, Bandung',
+                'Alamat' => 'Jl. Raya Soreang - Banjaran Samping Puskesmas Soreang No.275, Soreang, Kec. Soreang, Kabupaten Bandung, Jawa Barat 40911',
                 'UserId' => 5,
             ],
             [
@@ -40,7 +40,7 @@ class SpbuSeeder extends Seeder
             [
                 'NamaSPBU' => 'SPBU Pertamina Tanggeung',
                 'NomorSPBU' => '34.432.28',
-                'Alamat' => 'Jl. Raya Sayuran Gg.bp entoy, Cangkuang Kulon, Kec. Dayeuhkolot, Kabupaten Bandung, Jawa Barat 40239',
+                'Alamat' => 'Tanggeung, Kec. Tanggeung, Kabupaten Cianjur, Jawa Barat 43267',
                 'UserId' => 8,
             ],
             [
@@ -55,6 +55,14 @@ class SpbuSeeder extends Seeder
                 'Alamat' => 'Cibodas, Kec. Lembang, Kabupaten Bandung Barat, Jawa Barat',
                 'UserId' => 10,
             ],
+            [
+                'NamaSPBU' => 'SPBU Pertamina Wanaraja',
+                'NomorSPBU' => '34.44112',
+                'Alamat' => 'Jl. Raya Wanaraja, Sindangpalay, Kec. Karangpawitan, Kabupaten Garut, Jawa Barat 44182',
+                'UserId' => 11,
+            ],
+
+
         ]);
     }
 }
