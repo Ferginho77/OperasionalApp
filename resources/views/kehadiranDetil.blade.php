@@ -15,7 +15,7 @@
                     <th>Nama Karyawan</th>
                     <th>Role</th>
                     <th>Waktu Masuk</th>
-                    <th>Waktu Keluar</th>
+                    <th>Waktu Pulang</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,7 +25,7 @@
                         <td>{{ $kehadiran->karyawan->Nama ?? '-' }}</td>
                         <td>{{ $kehadiran->karyawan->Role ?? '-' }}</td>
                         <td>{{ $kehadiran->WaktuMasuk ? date('d-m-Y H:i', strtotime($kehadiran->WaktuMasuk)) : '-' }}</td>
-                        <td>{{ $kehadiran->WaktuKeluar ? date('d-m-Y H:i', strtotime($kehadiran->WaktuKeluar)) : '-' }}</td>
+                        <td>{{ $kehadiran->WaktuPulang ? date('d-m-Y H:i', strtotime($kehadiran->WaktuPulang)) : '-' }}</td>
                     </tr>
                 @empty
                     <tr>

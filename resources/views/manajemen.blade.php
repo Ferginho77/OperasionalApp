@@ -158,7 +158,7 @@
                         data-nama="{{ $p->NamaProduk }}"
                         data-harga="{{ $p->HargaPerLiter }}"
                         href="#" class="btn btn-primary btn-sm">Edit</button>
-                        <a href="#" class="btn btn-danger btn-sm">Hapus</a>
+                       
                     </td>
                 </tr>
                 @endforeach

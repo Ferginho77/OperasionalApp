@@ -16,7 +16,7 @@ class Nozle extends Model
 
      public function spbu()
     {
-        return $this->belongsTo(SPBU::class, 'SpbuId', 'id');
+        return $this->belongsTo(Spbu::class, 'SpbuId', 'id');
     }
      public function pulau()
     {

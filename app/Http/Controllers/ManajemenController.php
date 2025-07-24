@@ -104,6 +104,23 @@ class ManajemenController extends Controller
     return redirect()->route('manajemen')->with('success', 'Karyawan berhasil diperbarui.');
 }
 
+    public function EditProduk(Request $request){
+    $produk = Produk::findOrFail($request->id);
+
+    $request->validate([
+        'NamaProduk' => 'required|string|max:255',
+        'HargaPerLiter' => 'required|numeric',
+    ]);
+
+    $produk->update([
+        'Nama' => $request->NamaProduk,
+        'HargaPerLiter' => $request->HargaPerLiter,
+    ]);
+
+    return redirect()->route('manajemen')->with('success', 'Produk berhasil diperbarui.');
+    }
+
+
 public function destroyKaryawan($id)
 {
     $karyawan = Karyawan::findOrFail($id);

@@ -10,7 +10,7 @@
                         <h3>Edit Karyawan</h3>
                        <form id="editKaryawanForm" method="POST">
                             @csrf
-                            <input type="text" id="IdKaryawan" name="id">
+                            <input type="text" id="IdKaryawan" name="id" hidden>
                             <div class="mb-3">
                                 <label for="TotalizerAkhir" class="form-label">Nama</label>
                                 <input type="text" id="nama" name="Nama" class="form-control" required>

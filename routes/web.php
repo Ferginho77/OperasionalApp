@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/nozle-store', [ManajemenController::class, 'storeNozle'])->name('nozle.store');
     Route::post('/nozle/update', [ManajemenController::class, 'UpdateNozle'])->name('nozle.update');
     Route::delete('/nozle/{id}', [ManajemenController::class, 'destroyNozle'])->name('nozle.destroy');
+    Route::post('/edit/produk', [ManajemenController::class, 'EditProduk'])->name('produk.edit');
 });
 
 // ===================
