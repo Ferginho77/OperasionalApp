@@ -21,50 +21,81 @@ use Illuminate\Support\Facades\Log;
 class AbsensiController extends Controller
 {
     public function index()
-    {
-        $user = Auth::user();
-        $nomorSpbu = $user->NomorSPBU;
-        $tanggalHariIni = now()->toDateString();
+{
+    $user = Auth::user();
+    $nomorSpbu = $user->NomorSPBU;
+    $tanggalHariIni = now()->toDateString();
 
-        // Karyawan yang dijadwalkan hari ini
-        $jadwalKaryawanIds = JadwalOperator::where('NomorSPBU', $nomorSpbu)
-            ->where('Tanggal', $tanggalHariIni)
-            ->pluck('KaryawanId');
+    // Karyawan yang dijadwalkan hari ini
+    $jadwalKaryawanIds = JadwalOperator::where('NomorSPBU', $nomorSpbu)
+        ->where('Tanggal', $tanggalHariIni)
+        ->pluck('KaryawanId');
 
-        $karyawan = Karyawan::with(['totalizerAkhirTerakhir'])
-            ->whereIn('id', $jadwalKaryawanIds)
-            ->get();
+    $karyawan = Karyawan::with(['totalizerAkhirTerakhir'])
+        ->whereIn('id', $jadwalKaryawanIds)
+        ->get();
 
-        // Nozle di SPBU ini
-        $nozle = Nozle::with('pulau')->whereHas('spbu', function($query) use ($nomorSpbu) {
-            $query->where('NomorSPBU', $nomorSpbu);
-        })->get();
+    // Nozle di SPBU ini
+    $nozle = Nozle::with('pulau')->whereHas('spbu', function($query) use ($nomorSpbu) {
+        $query->where('NomorSPBU', $nomorSpbu);
+    })->get();
 
-        // Produk global
-        $produk = Produk::all();
+    // Produk global
+    $produk = Produk::all();
 
-        // Absensi hari ini untuk SPBU ini
-        $absensi = Absensi::with(['karyawan', 'nozle', 'produk'])
-            ->whereHas('karyawan', function($q) use ($nomorSpbu) {
-                $q->where('NomorSPBU', $nomorSpbu);
-            })
-            ->where('Tanggal', $tanggalHariIni)
-            ->get();
+    // Absensi hari ini untuk SPBU ini
+    $absensi = Absensi::with(['karyawan', 'nozle', 'produk'])
+        ->whereHas('karyawan', function($q) use ($nomorSpbu) {
+            $q->where('NomorSPBU', $nomorSpbu);
+        })
+        ->where('Tanggal', $tanggalHariIni)
+        ->get();
 
-        // Backup session aktif
-        $backupSessions = BackupSession::with(['backupOperator', 'absensi.nozle'])
-            ->whereNotNull('JamMulai')
+    // Attach backup session information to absensi entries
+    foreach ($absensi as $a) {
+        // Check if this absensi is being backed up
+        $a->isBeingBackedUp = BackupSession::where('AbsensiId', $a->id)
             ->whereNull('JamSelesai')
-            ->get();
+            ->exists();
 
-        // Karyawan dijadwalkan tapi belum absen
-        $idYangAbsen = $absensi->pluck('KaryawanId')->toArray();
-        $tidakHadir = Karyawan::whereIn('id', $jadwalKaryawanIds)
-            ->whereNotIn('id', $idYangAbsen)
-            ->get();
+        // Check if this operator (from absensi) is currently doing a backup
+        $a->isPerformingBackup = BackupSession::where('BackupOperatorId', $a->KaryawanId)
+            ->whereNull('JamSelesai')
+            ->exists();
 
-        return view('absensi', compact('karyawan', 'nozle', 'produk', 'absensi', 'backupSessions', 'tidakHadir'));
+        // Calculate totalizers and insentif (as you already have)
+        $literUtama = ($a->TotalizerAkhir && $a->TotalizerAwal) ? $a->TotalizerAkhir + $a->TotalizerAwal : 0;
+        $literBackup = BackupSession::where('AbsensiId', $a->id)
+            ->whereNotNull('TotalizerAkhir')
+            ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'));
+        $totalLiter = $literUtama + $literBackup;
+        $a->insentif = $totalLiter * 2.5;
+
+        // Add 'totalizer_utama' and 'totalizer_backup' to the absensi object
+        // You'll need to fetch these properly from your models.
+        // For demonstration, let's assume you have TotalizerAwal and TotalizerAkhir directly on Absensi for 'utama'.
+        // For 'backup', you'd need to sum from BackupSession where AbsensiId matches.
+        $a->totalizer_utama = ($a->TotalizerAkhir && $a->TotalizerAwal) ? ($a->TotalizerAkhir - $a->TotalizerAwal) : 0; // Corrected calculation for primary totalizer
+        $a->totalizer_backup = BackupSession::where('AbsensiId', $a->id)
+            ->whereNotNull('TotalizerAkhir')
+            ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'));
     }
+
+
+    // Backup session aktif
+    $backupSessions = BackupSession::with(['backupOperator', 'absensi.nozle'])
+        ->whereNotNull('JamMulai')
+        ->whereNull('JamSelesai')
+        ->get();
+
+    // Karyawan dijadwalkan tapi belum absen
+    $idYangAbsen = $absensi->pluck('KaryawanId')->toArray();
+    $tidakHadir = Karyawan::whereIn('id', $jadwalKaryawanIds)
+        ->whereNotIn('id', $idYangAbsen)
+        ->get();
+
+    return view('absensi', compact('karyawan', 'nozle', 'produk', 'absensi', 'backupSessions', 'tidakHadir'));
+}
 
     public function store(Request $request)
     {

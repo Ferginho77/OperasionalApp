@@ -17,8 +17,6 @@ return new class extends Migration
         $table->date('Tanggal');
         $table->time('JamMasuk')->nullable();
         $table->time('JamIstirahatMulai')->nullable();
-        $table->time('JamPindahNozle')->nullable();
-        $table->time('JamKembaliNozle')->nullable();
         $table->time('JamIstirahatKembali')->nullable();
         $table->time('JamPulang')->nullable();
         

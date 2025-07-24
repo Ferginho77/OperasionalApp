@@ -116,43 +116,55 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($absensi as $a)
-                @php
-                    $literUtama = ($a->TotalizerAkhir && $a->TotalizerAwal) ? $a->TotalizerAkhir + $a->TotalizerAwal : 0;
-                    $literBackup = \App\Models\BackupSession::where('AbsensiId', $a->id)
-                        ->whereNotNull('TotalizerAkhir')
-                        ->sum(\DB::raw('TotalizerAkhir - TotalizerAwal'));
-                    $totalLiter = $literUtama + $literBackup;
-                    $insentif = $totalLiter * 100;
-                @endphp
-                <tr>
-                    <td>{{ $a->karyawan->Nama }}</td>
-                    <td>
-                        @if ($a->JamPulang)
-                            <span class="text-success">Sudah Pulang</span>
-                        @elseif ($a->JamIstirahatKembali)
-                            <span class="text-info">Kembali Istirahat</span>
-                        @elseif ($a->JamIstirahatMulai)
-                            <span class="text-warning">Istirahat</span>
-                        @else
-                            <span class="text-primary">Masuk</span>
-                        @endif
-                    </td>
-                    <td>{{ $a->Tanggal }}</td>
-                    <td>{{ $a->JamMasuk }}</td>
-                    <td>{{ $a->JamIstirahatMulai }}</td>
-                    <td>{{ $a->nozle->NamaNozle ?? '-' }}</td>
-                    <td>{{ $a->produk->NamaProduk ?? '-' }}</td>
-                    <td>
-                        Utama: {{ number_format($a['totalizer_utama'], 0) }}L <br>
-                        Backup: {{ number_format($a['totalizer_backup'], 0) }}L
-                    </td>
-                    <td>
-                        Rp {{ number_format($a['insentif'], 0, ',', '.') }}
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
+    @foreach ($absensi as $a)
+        @php
+            // These calculations should ideally be done in the controller or a mutator
+            // on the Absensi model for better separation of concerns and performance.
+            // For now, keeping them here as per your original code, but note the
+            // addition of isPerformingBackup and isBeingBackedUp flags.
+            $literUtama = ($a->TotalizerAkhir && $a->TotalizerAwal) ? ($a->TotalizerAkhir - $a->TotalizerAwal) : 0;
+            $literBackup = \App\Models\BackupSession::where('AbsensiId', $a->id)
+                ->whereNotNull('TotalizerAkhir')
+                ->sum(\DB::raw('TotalizerAkhir - TotalizerAwal'));
+            $totalLiter = $literUtama + $literBackup;
+            $insentif = $totalLiter * 2.5;
+
+            // Flags set in the controller
+            $backupAktifUntukAbsensiIni = $a->isBeingBackedUp;
+            $melakukanBackup = $a->isPerformingBackup;
+        @endphp
+        <tr>
+            <td>{{ $a->karyawan->Nama }}</td>
+            <td>
+                @if ($melakukanBackup)
+                    <span class="text-info">Melakukan Backup</span>
+                @elseif ($backupAktifUntukAbsensiIni)
+                    <span class="text-secondary">Sedang Di-Backup</span>
+                @elseif ($a->JamPulang)
+                    <span class="text-success">Sudah Pulang</span>
+                @elseif ($a->JamIstirahatKembali)
+                    <span class="text-info">Kembali Istirahat</span>
+                @elseif ($a->JamIstirahatMulai)
+                    <span class="text-warning">Istirahat</span>
+                @else
+                    <span class="text-primary">Masuk</span>
+                @endif
+            </td>
+            <td>{{ $a->Tanggal }}</td>
+            <td>{{ $a->JamMasuk }}</td>
+            <td>{{ $a->JamIstirahatMulai }}</td>
+            <td>{{ $a->nozle->NamaNozle ?? '-' }}</td>
+            <td>{{ $a->produk->NamaProduk ?? '-' }}</td>
+            <td>
+                Utama: {{ number_format($a->totalizer_utama, 0) }}L <br>
+                Backup: {{ number_format($a->totalizer_backup, 0) }}L
+            </td>
+            <td>
+                Rp {{ number_format($a->insentif, 0, ',', '.') }}
+            </td>
+        </tr>
+    @endforeach
+</tbody>
     </table>
 </div>
 

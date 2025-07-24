@@ -17,8 +17,8 @@ return new class extends Migration
         $table->unsignedBigInteger('BackupOperatorId');
         $table->time('JamMulai')->nullable();
         $table->time('JamSelesai')->nullable();
-        $table->decimal('totalizer_awal', 10, 2)->nullable();
-        $table->decimal('totalizer_akhir', 10, 2)->nullable();
+        $table->decimal('TotalizerAwal', 10, 2)->nullable();
+        $table->decimal('TotalizerAkhir', 10, 2)->nullable();
         $table->timestamps();
 
         $table->foreign('AbsensiId')->references('id')->on('absensi')->onDelete('cascade');

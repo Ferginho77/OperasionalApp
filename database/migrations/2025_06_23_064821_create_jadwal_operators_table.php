@@ -16,10 +16,9 @@ return new class extends Migration
                $table->unsignedBigInteger('KaryawanId');
                 $table->foreign('KaryawanId')->references('id')->on('karyawan')->onDelete('cascade');
                 $table->date('Tanggal');
-                $table->enum('Shift', ['Pagi', 'Sore']); // Shift tambahan
+                $table->enum('Shift', ['Pagi', 'Sore', 'Malam']); // Shift tambahan
                 $table->string('NomorSPBU'); // referensi SPBU
                 $table->timestamps();
-                $table->unique(['Tanggal', 'Shift', 'NomorSPBU'], 'jadwal_unik_per_shift'); // hanya satu jadwal per shift di SPBU
         });
     }
 

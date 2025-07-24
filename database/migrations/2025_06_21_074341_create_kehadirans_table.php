@@ -16,7 +16,10 @@ return new class extends Migration
         $table->foreignId('KaryawanId')->constrained('karyawan')->onDelete('cascade');
         $table->timestamp('WaktuMasuk')->nullable();
         $table->timestamp('WaktuPulang')->nullable();
+        $table->unsignedBigInteger('SpbuId')->nullable();
         $table->timestamps();
+
+        $table->foreign('SpbuId')->references('id')->on('spbu')->onDelete('set null');
     });
 }
 

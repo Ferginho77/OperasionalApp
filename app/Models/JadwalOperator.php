@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class JadwalOperator extends Model
 {
-    protected $table = 'JadwalOperator'; // atau 'jadwal_operator' jika sudah diganti
+    protected $table = 'jadwaloperator'; // atau 'jadwal_operator' jika sudah diganti
 
     protected $fillable = [
         'KaryawanId',

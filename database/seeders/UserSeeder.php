@@ -14,16 +14,59 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'username' => 'Fergie',
-            'password' => Hash::make('321'),
-            'role' => 'admin',
-        ]);
+        // User::create([
+        //     'username' => 'Fergie',
+        //     'password' => Hash::make('321'),
+        //     'role' => 'admin',
+        // ]);
 
+        //  User::create([
+        //     'username' => 'Fandi',
+        //     'password' => Hash::make('321'),
+        //     'role' => 'owner',
+        // ]);
+        //  User::create([
+        //     'username' => 'SPBU Sayuran',
+        //     'password' => Hash::make('3440246'),
+        //     'role' => 'admin',
+        //     'NomorSpbu' => '34.402.46',
+        // ]);
+        //  User::create([
+        //     'username' => 'SPBU Samarang',
+        //     'password' => Hash::make('3444119'),
+        //     'role' => 'admin',
+        //     'NomorSpbu' => '34.441.19',
+        // ]);
          User::create([
-            'username' => 'Fandi',
-            'password' => Hash::make('321'),
-            'role' => 'owner',
+            'username' => 'SPBU Soreang',
+            'password' => Hash::make('3440905'),
+            'role' => 'admin',
+            'NomorSpbu' => '34.40905',
         ]);
+         User::create([
+            'username' => 'SPBU LeuwiGajah',
+            'password' => Hash::make('3440511'),
+            'role' => 'admin',
+            'NomorSpbu' => '34.405.11',
+        ]);
+        //  User::create([
+        //     'username' => 'SPBU Tanggeung',
+        //     'password' => Hash::make('3443228'),
+        //     'role' => 'admin',
+        //     'NomorSpbu' => '34.432.28',
+        // ]);
+        //  User::create([
+        //     'username' => 'Pertashop Langensari',
+        //     'password' => Hash::make('3P40313'),
+        //     'role' => 'admin',
+        //     'NomorSpbu' => '3P.40313',
+        // ]);
+        //  User::create([
+        //     'username' => 'Pertashop Cibodas',
+        //     'password' => Hash::make('3P40303'),
+        //     'role' => 'admin',
+        //     'NomorSpbu' => '3P.40303',
+        // ]);
+
     }
 }
