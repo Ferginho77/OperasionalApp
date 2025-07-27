@@ -24,7 +24,7 @@
 
         <div class="col-xl-3 col-md-6">
             <div class="card bg-warning mb-4">
-                <div class="card-body">Kehadiran karyawan <i class="fa-solid fa-calculator"></i></div>
+                <div class="card-body">Kehadiran karyawan <i class="fas fa-clipboard-user"></i></div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
                     <a class="small text-black stretched-link" href="/kehadiran">View Details</a>
                     <div class="small text-white">
