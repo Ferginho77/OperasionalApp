@@ -33,7 +33,8 @@
     </style>
 </head>
 <body>
-     <div style="position: relative; height: 100px;">
+    <h2 style="text-align:center; margin-bottom: 4px;">PT. Hendarsyah Surya Putra</h2>
+    <div style="position: relative; height: 100px;">
         <img src="{{ public_path('img/LogoPertamina.png') }}" alt="Logo Pertamina" width="165" height="100" class="logo-kanan">
     </div>
     <h2>Jadwal Operator</h2>

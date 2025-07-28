@@ -60,7 +60,7 @@ class ManajemenController extends Controller
 {
     $request->validate([
         'Nama' => 'required|string|max:255',
-        'Role' => 'required|in:Operator',
+        'Role' => 'required|string|max:50',
         'Nip' => 'required|string|max:20',
         'Cv' => 'required|file|mimes:pdf|max:2048',
         'FilePribadi' => 'required|file|mimes:pdf|max:2048',

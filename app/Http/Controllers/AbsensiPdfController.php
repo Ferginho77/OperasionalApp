@@ -44,9 +44,8 @@ class AbsensiPdfController extends Controller
     }
 
     public function rekap(){
-        
-     $nomorSpbu = Auth::user()->NomorSPBU;
-     $spbu = Spbu::where('NomorSPBU', $nomorSpbu)->first();
+    $nomorSpbu = Auth::user()->NomorSPBU;
+    $spbu = Spbu::where('NomorSPBU', $nomorSpbu)->first();
 
     $jadwals = JadwalOperator::with('karyawan')
         ->where('NomorSPBU', $nomorSpbu)
@@ -59,6 +58,9 @@ class AbsensiPdfController extends Controller
         })
         ->orderBy('Tanggal', 'desc')
         ->get();
+
+    // Hitung total kehadiran unik per karyawan
+    $total_hadir = $absensis->groupBy('KaryawanId')->map->count();
 
     $data = [];
     foreach ($jadwals as $jadwal) {
@@ -93,12 +95,15 @@ class AbsensiPdfController extends Controller
             'totalizer_utama'  => $totalizer_utama,
             'totalizer_backup' => $totalizer_backup,
             'insentif'         => $insentif,
+            'total_hadir'      => $total_hadir->get($jadwal->KaryawanId, 0), // <-- Tambahkan ini
         ];
     }
 
     $pdf = Pdf::loadView('exports.absensi_detil_pdf', compact('spbu', 'data'));
     return $pdf->download('absensi_'.$nomorSpbu.'.pdf');
-    }
+}
+
+
 
     public function kehadiran()
     {

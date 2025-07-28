@@ -68,5 +68,31 @@
             </div>
         </div>
     </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h3>Rekap Kehadiran Per Operator</h3>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Karyawan</th>
+                            <th>Role</th>
+                            <th>Total Kehadiran</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($rekap_operator as $i => $op)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $op['nama'] }}</td>
+                            <td>{{ $op['role'] }}</td>
+                            <td>{{ $op['total_hadir'] }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+        </div>
+    </div>
 </div>
 @endsection

@@ -20,6 +20,14 @@
                                 <label class="form-label">NIP</label>
                                 <input type="text" name="Nip" class="form-control" required>
                             </div>
+                            <div class="mb-3">
+                                <label class="form-label">Jabatan</label>
+                                <select name="Role" id="" class="form-select" required> 
+                                    <option value="Operator">Operator</option>
+                                    <option value="Pengawas">Pengawas</option>
+                                    <option value="OB">OB</option>
+                                    <option value="Security">Security</option>
+                                </select>
                              <div class="mb-2">
                                     <label for="cv" class="form-label">Upload CV (PDF)</label>
                                     <input type="file" name="Cv" id="Cv" class="form-control" accept="application/pdf" required>

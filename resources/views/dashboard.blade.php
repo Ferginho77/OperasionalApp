@@ -53,7 +53,7 @@
             <div class="card bg-info text-white mb-4">
                 <div class="card-body">Operator Aktif Hari Ini <i class="fa-solid fa-user-check"></i></div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
-                    <span class="small text-white">{{ $karyawan }} Operator</span>
+                    <span class="small text-white">{{ $operatorAktif }} Operator</span>
                 </div>
             </div>
         </div>

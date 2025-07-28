@@ -203,6 +203,7 @@ class AbsensiController extends Controller
     $user = Auth::user();
     $nomorSpbu = $user->NomorSPBU;
 
+    // Ambil jadwal & absensi
     $jadwal = JadwalOperator::with('karyawan')
         ->where('NomorSPBU', $nomorSpbu)
         ->orderBy('Tanggal', 'desc')
@@ -214,6 +215,25 @@ class AbsensiController extends Controller
         })
         ->get();
 
+    // --- Rekap per operator (dihitung sekali, bukan per loop)
+    // --- Rekap per operator (semua dari jadwal)
+$rekap_operator = $jadwal->groupBy('KaryawanId')->map(function ($group) use ($absensi) {
+    $karyawan = $group->first()->karyawan;
+    $totalHadir = $absensi
+        ->where('KaryawanId', $group->first()->KaryawanId)
+        ->pluck('Tanggal')
+        ->unique()
+        ->count();
+
+    return [
+        'nama' => $karyawan->Nama ?? '-',
+        'role' => $karyawan->Role ?? '-',
+        'total_hadir' => $totalHadir > 0 ? $totalHadir : 0 // kalau tidak hadir = 0
+    ];
+});
+
+
+    // --- Detail harian
     $rekap = [];
     foreach ($jadwal as $j) {
         $absen = $absensi
@@ -221,6 +241,7 @@ class AbsensiController extends Controller
             ->where('Tanggal', $j->Tanggal)
             ->first();
 
+        // Totalizer utama & backup
         $totalizer_utama = ($absen && $absen->TotalizerAkhir && $absen->TotalizerAwal)
             ? ($absen->TotalizerAkhir - $absen->TotalizerAwal)
             : 0;
@@ -234,64 +255,53 @@ class AbsensiController extends Controller
 
         $insentif = ($totalizer_utama + $totalizer_backup) * 2.5;
 
-        // Hitung jam kerja
-       $jamKerjaFormatted = '-'; // Default value jika tidak ada absensi atau data tidak lengkap
-            if ($absen && $absen->JamMasuk && $absen->JamPulang) {
-                try {
-                    $jamMasuk = Carbon::parse($absen->JamMasuk);
-                    $jamPulang = Carbon::parse($absen->JamPulang);
+        // --- Hitung jam kerja
+        $jamKerjaFormatted = '-';
+        if ($absen && $absen->JamMasuk && $absen->JamPulang) {
+            try {
+                $jamMasuk = Carbon::parse($absen->JamMasuk);
+                $jamPulang = Carbon::parse($absen->JamPulang);
+                $totalDurasiKerjaMenit = $jamPulang->diffInMinutes($jamMasuk, true);
 
-                    // Hitung total durasi kerja dalam menit (dari masuk sampai pulang)
-                    // Menggunakan 'true' sebagai parameter kedua untuk mendapatkan nilai absolut (positif)
-                    $totalDurasiKerjaMenit = $jamPulang->diffInMinutes($jamMasuk, true);
-
-                    $totalDurasiIstirahatMenit = 0;
-                    // Pastikan kedua waktu istirahat ada sebelum menghitung durasi istirahat
-                    if ($absen->JamIstirahatMulai && $absen->JamIstirahatKembali) {
-                        $istirahatMulai = Carbon::parse($absen->JamIstirahatMulai);
-                        $istirahatKembali = Carbon::parse($absen->JamIstirahatKembali);
-                        // Menggunakan 'true' untuk mendapatkan nilai absolut (positif)
-                        $totalDurasiIstirahatMenit = $istirahatKembali->diffInMinutes($istirahatMulai, true);
-                    }
-
-                    // Hitung jam kerja bersih dalam menit
-                    // Menggunakan max(0, ...) untuk memastikan hasilnya tidak negatif
-                    $jamKerjaBersihMenit = max(0, $totalDurasiKerjaMenit - $totalDurasiIstirahatMenit);
-
-                    // Konversi total menit bersih ke format jam dan menit
-                    $jam = floor($jamKerjaBersihMenit / 60);
-                    $menit = $jamKerjaBersihMenit % 60;
-
-                    $jamKerjaFormatted = $jam . ' jam ' . $menit . ' menit';
-
-                } catch (\Exception $e) {
-                    // Log error jika parsing tanggal gagal
-                    Log::error('Error parsing datetime for absensi ID: ' . ($absen->id ?? 'N/A') . ' - ' . $e->getMessage());
-                    $jamKerjaFormatted = 'Error Hitung Jam Kerja';
+                $totalDurasiIstirahatMenit = 0;
+                if ($absen->JamIstirahatMulai && $absen->JamIstirahatKembali) {
+                    $istirahatMulai = Carbon::parse($absen->JamIstirahatMulai);
+                    $istirahatKembali = Carbon::parse($absen->JamIstirahatKembali);
+                    $totalDurasiIstirahatMenit = $istirahatKembali->diffInMinutes($istirahatMulai, true);
                 }
-            }
 
-            $rekap[] = [
-                'nama'             => $j->karyawan->Nama ?? '-',
-                'tanggal'          => $j->Tanggal,
-                'shift'            => ucfirst($j->Shift),
-                'status'           => $absen ? 'Hadir' : 'Tidak Hadir',
-                'jam_masuk'        => $absen && $absen->JamMasuk ? date('H:i:s', strtotime($absen->JamMasuk)) : '-',
-                'jam_istirahat'    => $absen && $absen->JamIstirahatMulai && $absen->JamIstirahatKembali ?
-                                      date('H:i:s', strtotime($absen->JamIstirahatMulai)) . ' - ' . date('H:i:s', strtotime($absen->JamIstirahatKembali)) : '-', // Menampilkan rentang istirahat
-                'jam_pulang'       => $absen && $absen->JamPulang ? date('H:i:s', strtotime($absen->JamPulang)) : '-',
-                'nozle'            => $absen && $absen->nozle ? $absen->nozle->NamaNozle : '-',
-                'produk'           => $absen && $absen->produk ? $absen->produk->NamaProduk : '-',
-                'totalizer_utama'  => $totalizer_utama,
-                'totalizer_backup' => $totalizer_backup,
-                'insentif'         => $insentif,
-                'jam_kerja'        => $jamKerjaFormatted,
-            ];
+                $jamKerjaBersihMenit = max(0, $totalDurasiKerjaMenit - $totalDurasiIstirahatMenit);
+                $jam = floor($jamKerjaBersihMenit / 60);
+                $menit = $jamKerjaBersihMenit % 60;
+                $jamKerjaFormatted = $jam . ' jam ' . $menit . ' menit';
+            } catch (\Exception $e) {
+                Log::error('Error parsing datetime for absensi ID: ' . ($absen->id ?? 'N/A') . ' - ' . $e->getMessage());
+                $jamKerjaFormatted = 'Error Hitung Jam Kerja';
+            }
         }
 
+        // Push ke array
+        $rekap[] = [
+            'nama'             => $j->karyawan->Nama ?? '-',
+            'tanggal'          => $j->Tanggal,
+            'shift'            => ucfirst($j->Shift),
+            'status'           => $absen ? 'Hadir' : 'Tidak Hadir',
+            'jam_masuk'        => $absen && $absen->JamMasuk ? date('H:i:s', strtotime($absen->JamMasuk)) : '-',
+            'jam_istirahat'    => $absen && $absen->JamIstirahatMulai && $absen->JamIstirahatKembali ?
+                                  date('H:i:s', strtotime($absen->JamIstirahatMulai)) . ' - ' . date('H:i:s', strtotime($absen->JamIstirahatKembali)) : '-',
+            'jam_pulang'       => $absen && $absen->JamPulang ? date('H:i:s', strtotime($absen->JamPulang)) : '-',
+            'nozle'            => $absen && $absen->nozle ? $absen->nozle->NamaNozle : '-',
+            'produk'           => $absen && $absen->produk ? $absen->produk->NamaProduk : '-',
+            'totalizer_utama'  => $totalizer_utama,
+            'totalizer_backup' => $totalizer_backup,
+            'insentif'         => $insentif,
+            'jam_kerja'        => $jamKerjaFormatted,
+        ];
+    }
 
-    return view('rekapabsensi', compact('rekap'));
+    return view('rekapabsensi', compact('rekap', 'rekap_operator'));
 }
+
 
 
     public function ExportRekap()

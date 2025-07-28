@@ -3,13 +3,36 @@
 <head>
     <meta charset="utf-8">
     <title>Absensi Detil</title>
-    <style>
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th, td { border: 1px solid #333; padding: 4px; }
-        th { background: #eee; }
+   <style>
+        body {
+            font-family: sans-serif;
+            position: relative;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: left;
+        }
+        th {
+            background-color: #eee;
+        }
+        .logo-kanan {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
     </style>
 </head>
 <body>
+   <h2 style="text-align:center; margin-bottom: 4px;">PT. Hendarsyah Surya Putra</h2>
+    <div style="position: relative; height: 100px;">
+        <img src="{{ public_path('img/LogoPertamina.png') }}" alt="Logo Pertamina" width="165" height="100" class="logo-kanan">
+    </div>
     <h3>Rekap Absensi Detil SPBU: {{ $spbu->Nama ?? $spbu->NomorSPBU }}</h3>
     <table>
         <thead>
@@ -27,7 +50,7 @@
                 <th>Produk</th>
                 <th>Totalizer Utama</th>
                 <th>Totalizer Backup</th>
-                <th>Insentif</th>
+                <th>Insentif</th> 
             </tr>
         </thead>
         <tbody>

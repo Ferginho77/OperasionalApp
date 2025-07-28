@@ -164,6 +164,14 @@ public function absensiDetil($id)
         ->orderBy('Tanggal', 'desc')
         ->get();
 
+        $rekap_operator = $absensis->groupBy('KaryawanId')->map(function ($group) {
+        return [
+            'nama' => $group->first()->karyawan->Nama ?? '-',
+            'role' => $group->first()->karyawan->Role ?? '-',
+            'total_hadir' => $group->pluck('Tanggal')->unique()->count()
+        ];
+    });
+
     $data = [];
     foreach ($jadwals as $jadwal) {
         $absen = $absensis
@@ -200,7 +208,7 @@ public function absensiDetil($id)
         ];
     }
 
-    return view('absensiDetil', compact('spbu', 'data'));
+    return view('absensiDetil', compact('spbu', 'data', 'rekap_operator'));
 }
 
  public function kehadiranDetil($id)
@@ -257,6 +265,8 @@ public function exportAbsensiDetilPdf($id)
                 ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'));
         }
         $insentif = ($totalizer_utama + $totalizer_backup) * 2.5;
+         $total_hadir = $absensis->groupBy('KaryawanId')->map->count();
+
 
         $data[] = [
             'nama'             => $jadwal->karyawan->Nama ?? '-',
@@ -272,6 +282,7 @@ public function exportAbsensiDetilPdf($id)
             'totalizer_utama'  => $totalizer_utama,
             'totalizer_backup' => $totalizer_backup,
             'insentif'         => $insentif,
+             'total_hadir'      => $total_hadir->get($jadwal->KaryawanId, 0),
         ];
     }
 
