@@ -8,7 +8,26 @@
      <h2>Manajemen SPBU - {{ $spbu->NamaSPBU }}</h2>
     <h5><strong>Nomor SPBU:</strong> {{ $spbu->NomorSPBU }}</h5>
     <h5><strong>Alamat:</strong> {{ $spbu->Alamat ?? '-' }}</h5>
+        {{-- Operator Aktif --}}
+        <div class="row mt-2">
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-info text-white mb-4">
+                    <div class="card-body">Operator Aktif<i class="fa-solid fa-user-check"></i></div>
+                    <div class="card-footer d-flex align-items-center justify-content-between">
+                        <span class="small text-white">{{ $operatorAktif }} Operator</span>
+                    </div>
+                </div>
+            </div>
 
+            <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">Pengawas Aktif <i class="fa-solid fa-user-tie"></i></div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <span class="small text-white">{{ $pengawasAktif }} Pengawas</span>
+                </div>
+            </div>
+        </div>
+        </div>
     <h4 class="mt-4">Operator di SPBU ini:</h4>
    <div class="section-card">
     <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap">

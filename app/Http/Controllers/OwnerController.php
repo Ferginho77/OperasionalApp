@@ -77,6 +77,21 @@ class OwnerController extends Controller
     // Cari karyawan berdasarkan NomorSPBU
     $karyawans = Karyawan::where('NomorSPBU', $spbu->NomorSPBU)->get();
 
+    $tanggalHariIni = now()->toDateString();
+        $operatorAktif = Kehadiran::whereDate('WaktuMasuk', $tanggalHariIni)
+            ->whereHas('karyawan', function($q) use ($SpbuId) {
+                $q->where('Role', 'Operator')->where('SpbuId', $SpbuId);
+            })
+            ->distinct('KaryawanId')
+            ->count('KaryawanId');
+
+        $pengawasAktif = Kehadiran::whereDate('WaktuMasuk', $tanggalHariIni)
+        ->whereHas('karyawan', function($q) use ($SpbuId) {
+            $q->where('Role', 'Pengawas')->where('SpbuId', $SpbuId);
+        })
+        ->distinct('KaryawanId')
+        ->count('KaryawanId');    
+
     // Cari absensi karyawan SPBU ini
     $absensis = Absensi::whereHas('karyawan', function($q) use ($spbu) {
         $q->where('NomorSPBU', $spbu->NomorSPBU);
@@ -106,7 +121,7 @@ class OwnerController extends Controller
             ->orderBy('Tanggal', 'desc')
             ->get();
 
-    return view('spbuDetail', compact('spbu', 'karyawans', 'absensis', 'nozle', 'pulau', 'SpbuId', 'jadwals', 'karyawan'));
+    return view('spbuDetail', compact('spbu', 'karyawans', 'absensis', 'nozle', 'pulau', 'SpbuId', 'jadwals', 'karyawan', 'operatorAktif', 'pengawasAktif'));
 }
 
 public function kalenderApi($nomorSpbu)
