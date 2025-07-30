@@ -9,6 +9,7 @@
             <tr>
                 <th>No</th>
                 <th>Karyawan</th>
+                <th>Jabatan</th>
                 <th>Waktu Masuk</th>
                 <th>Waktu Pulang</th>
             </tr>
@@ -18,6 +19,7 @@
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $item->Karyawan->Nama }}</td>
+                <td>{{ $item->Karyawan->Role }}</td>
                 <td>{{ $item->WaktuMasuk }}</td>
                 <td>{{ $item->WaktuPulang ?? '-' }}</td>
             </tr>

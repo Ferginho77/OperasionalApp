@@ -17,7 +17,7 @@
                             </div>                         
                                 <input type="text" name="Role" class="form-control" value="Operator" hidden>                          
                             <div class="mb-3">
-                                <label class="form-label">NIP</label>
+                                <label class="form-label">NIK</label>
                                 <input type="text" name="Nip" class="form-control" required>
                             </div>
                             <div class="mb-3">

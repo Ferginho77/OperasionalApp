@@ -33,10 +33,10 @@
             <thead>
                 <tr>
                     <th>Nama</th>
-                    <th>NIP</th>
+                    <th>NIK</th>
                     <th>CV</th>
                     <th>Data Pribadi</th>
-                    <th>Role</th>
+                    <th>Jabatan</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -66,6 +66,7 @@
                             data-bs-target="#EditModal"
                             data-id="{{ $k->id }}"
                             data-nama="{{ $k->Nama }}"
+                            data-role="{{ $k->Role }}"
                             data-nip="{{ $k->Nip }}"
                         >Edit</button>
                         <form action="{{ route('karyawan.destroy', $k->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin ingin menghapus karyawan ini?')">

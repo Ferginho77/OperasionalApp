@@ -94,11 +94,13 @@ class ManajemenController extends Controller
     $request->validate([
         'Nama' => 'required|string|max:255',
         'Nip' => 'required|string|max:20',
+        'Role' => 'required|string|max:50',
     ]);
 
     $karyawan->update([
         'Nama' => $request->Nama,
         'Nip' => $request->Nip,
+        'Role' => $request->Role,
     ]);
 
     return redirect()->route('manajemen')->with('success', 'Karyawan berhasil diperbarui.');

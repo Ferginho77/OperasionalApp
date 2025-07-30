@@ -12,7 +12,7 @@
                     <form action="{{ route('absensi.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="KaryawanId" class="form-label">Karyawan</label>
+                            <label for="KaryawanId" class="form-label">Operator</label>
                             <select name="KaryawanId" id="karyawanSelect" class="form-select">
                                 @foreach ($karyawan as $k)
                                     <option value="{{ $k->id }}" data-totalizer="{{ $k->totalizerAkhirTerakhir->TotalizerAkhir ?? '0' }}">

@@ -16,8 +16,17 @@
                                 <input type="text" id="nama" name="Nama" class="form-control" required>
                             </div>
                             <div class="mb-3">
-                                <label for="TotalizerAkhir" class="form-label">NIP</label>
+                                <label for="TotalizerAkhir" class="form-label">NIK</label>
                                 <input type="text" id="Nip" name="Nip" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="Role">Jabatan</label>
+                                <select name="Role" id="Role" class="form-select">Jabatan
+                                     <option value="Operator">Operator</option>
+                                    <option value="Pengawas">Pengawas</option>
+                                    <option value="OB">OB</option>
+                                    <option value="Security">Security</option>
+                                </select>
                             </div>
                             <button type="submit" class="btn btn-warning">Perbarui</button>
                         </form>
@@ -35,10 +44,12 @@
         const button = event.relatedTarget;
         const nama = button.getAttribute('data-nama');
         const Nip = button.getAttribute('data-nip');
+        const role = button.getAttribute('data-role');
         const IdKaryawan = button.getAttribute('data-id');
 
         EditModal.querySelector('#nama').value = nama;
         EditModal.querySelector('#Nip').value = Nip;
+        EditModal.querySelector('#Role').value = role;
         EditModal.querySelector('#IdKaryawan').value = IdKaryawan;
 
         // Set action route dengan id
