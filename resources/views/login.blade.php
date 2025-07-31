@@ -68,7 +68,7 @@
                     </div>
                 </div>
             </div>
-            <p class="text-center" style="font-size: 14px;">© 2025 | Pertamina Power Indonesia</p>
+            <p class="text-center" style="font-size: 14px;">© 2025 | PT. Hendarsyah Surya Putra</p>
         </div>
     </div>
 </main>
