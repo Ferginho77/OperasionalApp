@@ -45,7 +45,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="TotalizerAwal" class="form-label">Totalizer Awal</label>
-                            <input type="number" step="0.01" name="TotalizerAwal" id="TotalizerAwal" class="form-control" readonly required>
+                            <input type="number" step="0.01" name="TotalizerAwal" id="TotalizerAwal" class="form-control" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Absen Masuk</button>
                     </form>
