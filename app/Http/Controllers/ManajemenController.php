@@ -62,17 +62,23 @@ class ManajemenController extends Controller
         'Nama' => 'required|string|max:255',
         'Role' => 'required|string|max:50',
         'Nip' => 'required|string|max:20',
-        'Cv' => 'required|file|mimes:pdf|max:2048',
-        'FilePribadi' => 'required|file|mimes:pdf|max:2048',
+        'Cv' => 'nullable|file|mimes:pdf|max:2048',
+        'FilePribadi' => 'nullable|file|mimes:pdf|max:2048',
     ]);
 
     $nomorSpbu = Auth::user()->NomorSPBU;
 
-    $CvOriginalName = $request->file('Cv')->getClientOriginalName();
-    $filePribadiOriginalName = $request->file('FilePribadi')->getClientOriginalName();
+    $Cv = null;
+    $Filepribadi = null;
 
-    $Cv = $request->file('Cv')->storeAs('Cv', $CvOriginalName, 'public');
-    $Filepribadi = $request->file('FilePribadi')->storeAs('FilePribadi', $filePribadiOriginalName, 'public');
+    if ($request->hasFile('Cv')) {
+        $CvOriginalName = $request->file('Cv')->getClientOriginalName();
+        $Cv = $request->file('Cv')->storeAs('Cv', $CvOriginalName, 'public');
+    }
+    if ($request->hasFile('FilePribadi')) {
+        $filePribadiOriginalName = $request->file('FilePribadi')->getClientOriginalName();
+        $Filepribadi = $request->file('FilePribadi')->storeAs('FilePribadi', $filePribadiOriginalName, 'public');
+    }
 
     Karyawan::create([
         'Nama' => $request->Nama,
@@ -95,13 +101,29 @@ class ManajemenController extends Controller
         'Nama' => 'required|string|max:255',
         'Nip' => 'required|string|max:20',
         'Role' => 'required|string|max:50',
+        'Cv' => 'nullable|file|mimes:pdf|max:2048',
+        'FilePribadi' => 'nullable|file|mimes:pdf|max:2048',
     ]);
 
-    $karyawan->update([
+    $data = [
         'Nama' => $request->Nama,
         'Nip' => $request->Nip,
         'Role' => $request->Role,
-    ]);
+    ];
+
+    // Jika ada file CV baru
+    if ($request->hasFile('Cv')) {
+        $CvOriginalName = $request->file('Cv')->getClientOriginalName();
+        $data['Cv'] = $request->file('Cv')->storeAs('Cv', $CvOriginalName, 'public');
+    }
+
+    // Jika ada file FilePribadi baru
+    if ($request->hasFile('FilePribadi')) {
+        $filePribadiOriginalName = $request->file('FilePribadi')->getClientOriginalName();
+        $data['FilePribadi'] = $request->file('FilePribadi')->storeAs('FilePribadi', $filePribadiOriginalName, 'public');
+    }
+
+    $karyawan->update($data);
 
     return redirect()->route('manajemen')->with('success', 'Karyawan berhasil diperbarui.');
 }

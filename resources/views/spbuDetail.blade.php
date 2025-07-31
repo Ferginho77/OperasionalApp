@@ -54,7 +54,7 @@
                 <tr>
                     <th>Nama</th>
                     <th>NIP</th>
-                    <th>Role</th>
+                    <th>Jabatan</th>
                     <th>Aksi</th>
                 </tr>
             </thead>

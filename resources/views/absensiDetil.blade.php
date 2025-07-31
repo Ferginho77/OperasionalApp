@@ -12,7 +12,7 @@
                     <tr>
                         <th>No</th>
                         <th>Nama Karyawan</th>
-                        <th>Role</th>
+                        <th>Jabatan</th>
                         <th>Tanggal</th>
                         <th>Status</th>
                         <th>Jam Masuk</th>
@@ -77,7 +77,7 @@
                         <tr>
                             <th>No</th>
                             <th>Nama Karyawan</th>
-                            <th>Role</th>
+                            <th>Jabatan</th>
                             <th>Total Kehadiran</th>
                         </tr>
                     </thead>

@@ -77,7 +77,7 @@
                         <tr>
                             <th>No</th>
                             <th>Nama Karyawan</th>
-                            <th>Role</th>
+                            <th>Jabatan</th>
                             <th>Total Kehadiran</th>
                         </tr>
                     </thead>

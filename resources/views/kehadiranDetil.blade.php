@@ -13,7 +13,7 @@
                 <tr>
                     <th>#</th>
                     <th>Nama Karyawan</th>
-                    <th>Role</th>
+                    <th>Jabatan</th>
                     <th>Waktu Masuk</th>
                     <th>Waktu Pulang</th>
                 </tr>

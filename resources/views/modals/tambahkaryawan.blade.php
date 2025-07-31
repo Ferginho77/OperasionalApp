@@ -14,8 +14,7 @@
                             <div class="mb-3">
                                 <label class="form-label">Nama</label>
                                 <input type="text" name="Nama" class="form-control" required>
-                            </div>                         
-                                <input type="text" name="Role" class="form-control" value="Operator" hidden>                          
+                            </div>                                                  
                             <div class="mb-3">
                                 <label class="form-label">NIK</label>
                                 <input type="text" name="Nip" class="form-control" required>
@@ -30,11 +29,11 @@
                                 </select>
                              <div class="mb-2">
                                     <label for="cv" class="form-label">Upload CV (PDF)</label>
-                                    <input type="file" name="Cv" id="Cv" class="form-control" accept="application/pdf" required>
+                                    <input type="file" name="Cv" id="Cv" class="form-control" accept="application/pdf">
                                 </div>
                                 <div class="mb-2">
                                     <label for="FilePribadi" class="form-label">File Pribadi (PDF)</label>
-                                    <input type="file" name="FilePribadi" id="FilePribadi" class="form-control" accept="application/pdf" required>
+                                    <input type="file" name="FilePribadi" id="FilePribadi" class="form-control" accept="application/pdf">
                                 </div>
                             <button type="submit" class="btn btn-outline-primary">Tambah</button>
                         </form>

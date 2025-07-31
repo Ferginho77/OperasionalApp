@@ -28,6 +28,14 @@
                                     <option value="Security">Security</option>
                                 </select>
                             </div>
+                             <div class="mb-2">
+                                    <label for="cv" class="form-label">Upload CV (PDF)</label>
+                                    <input type="file" name="Cv" id="Cv" class="form-control" accept="application/pdf">
+                                </div>
+                                <div class="mb-2">
+                                    <label for="FilePribadi" class="form-label">File Pribadi (PDF)</label>
+                                    <input type="file" name="FilePribadi" id="FilePribadi" class="form-control" accept="application/pdf">
+                                </div>
                             <button type="submit" class="btn btn-warning">Perbarui</button>
                         </form>
                     </div>
@@ -45,11 +53,15 @@
         const nama = button.getAttribute('data-nama');
         const Nip = button.getAttribute('data-nip');
         const role = button.getAttribute('data-role');
+        const cv = button.getAttribute('data-cv');
+        const filePribadi = button.getAttribute('data-filepribadi');
         const IdKaryawan = button.getAttribute('data-id');
 
         EditModal.querySelector('#nama').value = nama;
         EditModal.querySelector('#Nip').value = Nip;
         EditModal.querySelector('#Role').value = role;
+        EditModal.querySelector('#Cv').value = cv;
+        EditModal.querySelector('#FilePribadi').value = filePribadi;
         EditModal.querySelector('#IdKaryawan').value = IdKaryawan;
 
         // Set action route dengan id

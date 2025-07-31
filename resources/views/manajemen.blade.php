@@ -68,6 +68,8 @@
                             data-nama="{{ $k->Nama }}"
                             data-role="{{ $k->Role }}"
                             data-nip="{{ $k->Nip }}"
+                            data-cv="{{ $k->Cv }}"
+                            data-filepribadi="{{ $k->FilePribadi }}"
                         >Edit</button>
                         <form action="{{ route('karyawan.destroy', $k->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin ingin menghapus karyawan ini?')">
                             @csrf
