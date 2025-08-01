@@ -35,6 +35,7 @@
                                     <label for="FilePribadi" class="form-label">File Pribadi (PDF)</label>
                                     <input type="file" name="FilePribadi" id="FilePribadi" class="form-control" accept="application/pdf">
                                 </div>
+                                <input type="hidden" name="Status" value="Aktif">
                             <button type="submit" class="btn btn-outline-primary">Tambah</button>
                         </form>
                     </div>

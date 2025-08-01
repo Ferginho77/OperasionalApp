@@ -26,29 +26,28 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 11px;
+            font-size: 12px;
         }
         th, td {
             border: 1px solid #000;
-            padding: 5px;
-            text-align: center;
+            padding: 4px;
+            text-align: left;
         }
-        .footer {
-            width: 100%;
-            margin-top: 30px;
-            font-size: 12px;
+        th {
+            background-color: #eee;
         }
-        .footer td {
-            text-align: center;
-            border: none;
-        }
-        .keterangan {
-            margin-top: 15px;
-            font-size: 11px;
+        .logo-kanan {
+            position: absolute;
+            top: 0;
+            right: 0;
         }
     </style>
 </head>
 <body>
+     <h2 style="text-align:center; margin-bottom: 4px;">PT. Hendarsyah Surya Putra</h2>
+    <div style="position: relative; height: 100px;">
+        <img src="{{ public_path('img/LogoPertamina.png') }}" alt="Logo Pertamina" width="165" height="100" class="logo-kanan">
+    </div>
     <!-- Judul -->
     <div class="title">
         <h3>DAFTAR HADIR</h3>
@@ -79,22 +78,6 @@
                 </tr>
             @endforeach
         </tbody>
-    </table>
-    <!-- Tanda Tangan -->
-    <table class="footer">
-        <tr>
-            <td></td>
-            <td>Mengetahui,</td>
-        </tr>
-        <tr>
-            <td></td>
-            <td>Bandung, {{ now()->translatedFormat('d F Y') }}</td>
-        </tr>
-        <tr>
-            <td>PENGAWAS 1</td>
-            <td>PENGAWAS 2</td>
-        </tr>
-        <tr><td height="50"></td><td></td></tr>
     </table>
 </body>
 </html>

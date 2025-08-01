@@ -27,7 +27,6 @@
                             <th>Nozle</th>
                             <th>Produk</th>
                             <th>Totalizer</th>
-                            <th>Insentif</th>
                         </tr>
                     </thead>
 
@@ -55,7 +54,7 @@
                                     Utama: {{ number_format($r['totalizer_utama'], 0) }}L <br>
                                     Backup: {{ number_format($r['totalizer_backup'], 0) }}L
                                 </td>
-                                <td>Rp {{ number_format($r['insentif'], 0, ',', '.') }}</td>
+                                
                             </tr>
                         @empty
                             <tr>

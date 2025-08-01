@@ -37,6 +37,7 @@
                     <th>CV</th>
                     <th>Data Pribadi</th>
                     <th>Jabatan</th>
+                    <th>Status</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -60,6 +61,18 @@
                         @endif
                     </td>
                     <td>{{ $k->Role }}</td>
+                    <td>
+                        @if($k->Status == 'Aktif')
+                            <span class="badge bg-success">Aktif</span>
+                        @elseif($k->Status == 'PHK')
+                            <span class="badge bg-danger">PHK</span>
+                        @elseif($k->Status == 'Resign')
+                            <span class="badge bg-dark">Resign</span>    
+                        @elseif($k->Status == 'SP')
+                            <span class="badge bg-warning text-dark">SP</span>    
+                            @else
+                            <span class="badge bg-secondary">NonAktif</span>
+                        @endif
                     <td>
                         <button class="btn btn-primary btn-sm"
                             data-bs-toggle="modal"

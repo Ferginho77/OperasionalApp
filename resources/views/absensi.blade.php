@@ -112,7 +112,7 @@
                 <th>Nozle</th>
                 <th>Produk</th>
                 <th>Totalizer</th>
-                <th>Insentif</th>
+                {{-- <th>Insentif</th> --}}
             </tr>
         </thead>
         <tbody>
@@ -159,9 +159,9 @@
                 Utama: {{ number_format($a->totalizer_utama, 0) }}L <br>
                 Backup: {{ number_format($a->totalizer_backup, 0) }}L
             </td>
-            <td>
+            {{-- <td>
                 Rp {{ number_format($a->insentif, 0, ',', '.') }}
-            </td>
+            </td> --}}
         </tr>
     @endforeach
 </tbody>

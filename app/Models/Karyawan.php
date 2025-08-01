@@ -17,6 +17,7 @@ class Karyawan extends Model
         'NomorSPBU',
         'Cv',
         'FilePribadi',
+        'Status', // Tambahkan kolom Status
     ];
 
     public function absensis()

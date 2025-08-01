@@ -64,6 +64,7 @@ class ManajemenController extends Controller
         'Nip' => 'required|string|max:20',
         'Cv' => 'nullable|file|mimes:pdf|max:2048',
         'FilePribadi' => 'nullable|file|mimes:pdf|max:2048',
+        'Status' => 'required|in:aktif,nonaktif',
     ]);
 
     $nomorSpbu = Auth::user()->NomorSPBU;
@@ -87,6 +88,7 @@ class ManajemenController extends Controller
         'NomorSPBU' => $nomorSpbu,
         'Cv' => $Cv,
         'FilePribadi' => $Filepribadi,
+        'Status' => $request->Status,
     ]);
 
     return redirect()->route('manajemen')->with('success', 'Karyawan berhasil ditambahkan.');
@@ -103,12 +105,14 @@ class ManajemenController extends Controller
         'Role' => 'required|string|max:50',
         'Cv' => 'nullable|file|mimes:pdf|max:2048',
         'FilePribadi' => 'nullable|file|mimes:pdf|max:2048',
+        'Status' => 'required|in:aktif,nonaktif',
     ]);
 
     $data = [
         'Nama' => $request->Nama,
         'Nip' => $request->Nip,
         'Role' => $request->Role,
+        'Status' => $request->Status,
     ];
 
     // Jika ada file CV baru
