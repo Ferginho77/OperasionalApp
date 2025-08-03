@@ -14,11 +14,11 @@ class Kehadiran extends Model
 
       public function karyawan()
     {
-        return $this->belongsTo(Karyawan::class, 'KaryawanId');
+        return $this->belongsTo(Karyawan::class, 'KaryawanId', 'id');
     }
 
-    public function spbu()
-{
-    return $this->belongsTo(Spbu::class, 'spbu_id'); // Adjust 'spbu_id' to the correct foreign key
-}
+   public function spbu()
+    {
+        return $this->belongsTo(Spbu::class, 'SpbuId', 'id');
+    }
 }

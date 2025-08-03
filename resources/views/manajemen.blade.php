@@ -63,15 +63,15 @@
                     <td>{{ $k->Role }}</td>
                     <td>
                         @if($k->Status == 'Aktif')
-                            <span class="badge bg-success">Aktif</span>
+                            <span class="fs-6 badge bg-success">Aktif</span>
                         @elseif($k->Status == 'PHK')
-                            <span class="badge bg-danger">PHK</span>
+                            <span class="fs-6 badge bg-danger">PHK</span>
                         @elseif($k->Status == 'Resign')
-                            <span class="badge bg-dark">Resign</span>    
+                            <span class="fs-6 badge bg-dark">Resign</span>    
                         @elseif($k->Status == 'SP')
-                            <span class="badge bg-warning text-dark">SP</span>    
+                            <span class="fs-6 badge bg-warning text-dark">SP</span>    
                             @else
-                            <span class="badge bg-secondary">NonAktif</span>
+                            <span class="fs-6 badge bg-secondary">NonAktif</span>
                         @endif
                     <td>
                         <button class="btn btn-primary btn-sm"

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\KehadiranApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KehadiranController; // Pastikan controller di-import
@@ -30,3 +31,11 @@ Route::put('/kehadiran/{karyawanId}', [KehadiranController::class, 'update']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+// Route baru untuk mengambil data absensi dari mesin ZKTeco
+Route::get('/{uid}/{id_mesin}', [KehadiranApiController::class, 'getAbsensi']);
+
