@@ -73,4 +73,9 @@ class Absensi extends Model
     {
         return $this->TotalPenjualan * 0.01;
     }
+
+    public function totalizerAkhirTerakhir()
+    {
+        return $this->hasOne(Absensi::class, 'KaryawanId', 'id')->latestOfMany();
+    }
 }

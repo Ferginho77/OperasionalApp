@@ -21,81 +21,72 @@ use Illuminate\Support\Facades\Log;
 class AbsensiController extends Controller
 {
     public function index()
-{
-    $user = Auth::user();
-    $nomorSpbu = $user->NomorSPBU;
-    $tanggalHariIni = now()->toDateString();
+    {
+        $user = Auth::user();
+        $nomorSpbu = $user->NomorSPBU;
+        $tanggalHariIni = now()->toDateString();
 
-    // Karyawan yang dijadwalkan hari ini
-    $jadwalKaryawanIds = JadwalOperator::where('NomorSPBU', $nomorSpbu)
-        ->where('Tanggal', $tanggalHariIni)
-        ->pluck('KaryawanId');
+        // Karyawan yang dijadwalkan hari ini
+        $jadwalKaryawanIds = JadwalOperator::where('NomorSPBU', $nomorSpbu)
+            ->where('Tanggal', $tanggalHariIni)
+            ->pluck('KaryawanId');
 
-    $karyawan = Karyawan::with(['totalizerAkhirTerakhir'])
-        ->whereIn('id', $jadwalKaryawanIds)
-        ->get();
+        $karyawan = Karyawan::whereIn('id', $jadwalKaryawanIds)->get();
 
-    // Nozle di SPBU ini
-    $nozle = Nozle::with('pulau')->whereHas('spbu', function($query) use ($nomorSpbu) {
-        $query->where('NomorSPBU', $nomorSpbu);
-    })->get();
+        // Nozle di SPBU ini
+        $nozle = Nozle::with('pulau')->whereHas('spbu', function($query) use ($nomorSpbu) {
+            $query->where('NomorSPBU', $nomorSpbu);
+        })->get();
 
-    // Produk global
-    $produk = Produk::all();
+        // Produk global
+        $produk = Produk::all();
 
-    // Absensi hari ini untuk SPBU ini
-    $absensi = Absensi::with(['karyawan', 'nozle', 'produk'])
-        ->whereHas('karyawan', function($q) use ($nomorSpbu) {
-            $q->where('NomorSPBU', $nomorSpbu);
-        })
-        ->where('Tanggal', $tanggalHariIni)
-        ->get();
+        // Absensi hari ini untuk SPBU ini
+        $absensi = Absensi::with(['karyawan', 'nozle', 'totalizerAkhirTerakhir'])
+            ->whereHas('karyawan', function($q) use ($nomorSpbu) {
+                $q->where('NomorSPBU', $nomorSpbu);
+            })
+            ->where('Tanggal', $tanggalHariIni)
+            ->get();
 
-    // Attach backup session information to absensi entries
-    foreach ($absensi as $a) {
-        // Check if this absensi is being backed up
-        $a->isBeingBackedUp = BackupSession::where('AbsensiId', $a->id)
+        // Attach backup session information to absensi entries
+        foreach ($absensi as $a) {
+            // Check if this absensi is being backed up
+            $a->isBeingBackedUp = BackupSession::where('AbsensiId', $a->id)
+                ->whereNull('JamSelesai')
+                ->exists();
+
+            // Check if this operator (from absensi) is currently doing a backup
+            $a->isPerformingBackup = BackupSession::where('BackupOperatorId', $a->KaryawanId)
+                ->whereNull('JamSelesai')
+                ->exists();
+
+            // Calculate totalizers and insentif
+            $literUtama = ($a->TotalizerAkhir && $a->TotalizerAwal) ? ($a->TotalizerAkhir - $a->TotalizerAwal) : 0;
+            $literBackup = BackupSession::where('AbsensiId', $a->id)
+                ->whereNotNull('TotalizerAkhir')
+                ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'));
+            $totalLiter = $literUtama + $literBackup;
+            $a->insentif = $totalLiter * 2.5;
+
+            $a->totalizer_utama = $literUtama;
+            $a->totalizer_backup = $literBackup;
+        }
+
+        // Backup session aktif
+        $backupSessions = BackupSession::with(['backupOperator', 'absensi.nozle'])
+            ->whereNotNull('JamMulai')
             ->whereNull('JamSelesai')
-            ->exists();
+            ->get();
 
-        // Check if this operator (from absensi) is currently doing a backup
-        $a->isPerformingBackup = BackupSession::where('BackupOperatorId', $a->KaryawanId)
-            ->whereNull('JamSelesai')
-            ->exists();
+        // Karyawan dijadwalkan tapi belum absen
+        $idYangAbsen = $absensi->pluck('KaryawanId')->toArray();
+        $tidakHadir = Karyawan::whereIn('id', $jadwalKaryawanIds)
+            ->whereNotIn('id', $idYangAbsen)
+            ->get();
 
-        // Calculate totalizers and insentif (as you already have)
-        $literUtama = ($a->TotalizerAkhir && $a->TotalizerAwal) ? $a->TotalizerAkhir + $a->TotalizerAwal : 0;
-        $literBackup = BackupSession::where('AbsensiId', $a->id)
-            ->whereNotNull('TotalizerAkhir')
-            ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'));
-        $totalLiter = $literUtama + $literBackup;
-        $a->insentif = $totalLiter * 2.5;
-
-        // Add 'totalizer_utama' and 'totalizer_backup' to the absensi object
-        // You'll need to fetch these properly from your models.
-        // For demonstration, let's assume you have TotalizerAwal and TotalizerAkhir directly on Absensi for 'utama'.
-        // For 'backup', you'd need to sum from BackupSession where AbsensiId matches.
-        $a->totalizer_utama = ($a->TotalizerAkhir && $a->TotalizerAwal) ? ($a->TotalizerAkhir - $a->TotalizerAwal) : 0; // Corrected calculation for primary totalizer
-        $a->totalizer_backup = BackupSession::where('AbsensiId', $a->id)
-            ->whereNotNull('TotalizerAkhir')
-            ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'));
+        return view('absensi', compact('karyawan', 'nozle', 'produk', 'absensi', 'backupSessions', 'tidakHadir'));
     }
-
-
-    // Backup session aktif
-    $backupSessions = BackupSession::with(['backupOperator', 'absensi.nozle'])
-        ->whereNotNull('JamMulai')
-        ->whereNull('JamSelesai')
-        ->get();
-
-    // Karyawan dijadwalkan tapi belum absen
-    $idYangAbsen = $absensi->pluck('KaryawanId')->toArray();
-    $tidakHadir = Karyawan::whereIn('id', $jadwalKaryawanIds)
-        ->whereNotIn('id', $idYangAbsen)
-        ->get();
-
-    return view('absensi', compact('karyawan', 'nozle', 'produk', 'absensi', 'backupSessions', 'tidakHadir'));
-}
 
     public function store(Request $request)
     {
@@ -198,118 +189,112 @@ class AbsensiController extends Controller
         return back()->with('success', 'Absensi pulang dicatat.');
     }
 
-   public function rekap()
-{
-    $user = Auth::user();
-    $nomorSpbu = $user->NomorSPBU;
+    public function rekap()
+    {
+        $user = Auth::user();
+        $nomorSpbu = $user->NomorSPBU;
 
-    // Ambil jadwal & absensi
-    $jadwal = JadwalOperator::with('karyawan')
-        ->where('NomorSPBU', $nomorSpbu)
-        ->orderBy('Tanggal', 'desc')
-        ->get();
+        // Ambil jadwal & absensi
+        $jadwal = JadwalOperator::with('karyawan')
+            ->where('NomorSPBU', $nomorSpbu)
+            ->orderBy('Tanggal', 'desc')
+            ->get();
 
-    $absensi = Absensi::with(['karyawan', 'nozle', 'produk'])
-        ->whereHas('karyawan', function ($q) use ($nomorSpbu) {
-            $q->where('NomorSPBU', $nomorSpbu);
-        })
-        ->get();
+        $absensi = Absensi::with(['karyawan', 'nozle', 'produk'])
+            ->whereHas('karyawan', function ($q) use ($nomorSpbu) {
+                $q->where('NomorSPBU', $nomorSpbu);
+            })
+            ->get();
 
-    // --- Rekap per operator (dihitung sekali, bukan per loop)
-    // --- Rekap per operator (semua dari jadwal)
-$rekap_operator = $jadwal->groupBy('KaryawanId')->map(function ($group) use ($absensi) {
-    $karyawan = $group->first()->karyawan;
-    $totalHadir = $absensi
-        ->where('KaryawanId', $group->first()->KaryawanId)
-        ->pluck('Tanggal')
-        ->unique()
-        ->count();
+        // Rekap per operator
+        $rekap_operator = $jadwal->groupBy('KaryawanId')->map(function ($group) use ($absensi) {
+            $karyawan = $group->first()->karyawan;
+            $totalHadir = $absensi
+                ->where('KaryawanId', $group->first()->KaryawanId)
+                ->pluck('Tanggal')
+                ->unique()
+                ->count();
 
-    return [
-        'nama' => $karyawan->Nama ?? '-',
-        'role' => $karyawan->Role ?? '-',
-        'total_hadir' => $totalHadir > 0 ? $totalHadir : 0 // kalau tidak hadir = 0
-    ];
-});
+            return [
+                'nama' => $karyawan->Nama ?? '-',
+                'role' => $karyawan->Role ?? '-',
+                'total_hadir' => $totalHadir > 0 ? $totalHadir : 0
+            ];
+        });
 
+        // Detail harian
+        $rekap = [];
+        foreach ($jadwal as $j) {
+            $absen = $absensi
+                ->where('KaryawanId', $j->KaryawanId)
+                ->where('Tanggal', $j->Tanggal)
+                ->first();
 
-    // --- Detail harian
-    $rekap = [];
-    foreach ($jadwal as $j) {
-        $absen = $absensi
-            ->where('KaryawanId', $j->KaryawanId)
-            ->where('Tanggal', $j->Tanggal)
-            ->first();
+            $totalizer_utama = ($absen && $absen->TotalizerAkhir && $absen->TotalizerAwal)
+                ? ($absen->TotalizerAkhir - $absen->TotalizerAwal)
+                : 0;
 
-        // Totalizer utama & backup
-        $totalizer_utama = ($absen && $absen->TotalizerAkhir && $absen->TotalizerAwal)
-            ? ($absen->TotalizerAkhir - $absen->TotalizerAwal)
-            : 0;
-
-        $totalizer_backup = 0;
-        if ($absen) {
-            $totalizer_backup = BackupSession::where('AbsensiId', $absen->id)
-                ->whereNotNull('TotalizerAkhir')
-                ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'));
-        }
-
-        $insentif = ($totalizer_utama + $totalizer_backup) * 2.5;
-
-        // --- Hitung jam kerja
-        $jamKerjaFormatted = '-';
-        if ($absen && $absen->JamMasuk && $absen->JamPulang) {
-            try {
-                $jamMasuk = Carbon::parse($absen->JamMasuk);
-                $jamPulang = Carbon::parse($absen->JamPulang);
-                $totalDurasiKerjaMenit = $jamPulang->diffInMinutes($jamMasuk, true);
-
-                $totalDurasiIstirahatMenit = 0;
-                if ($absen->JamIstirahatMulai && $absen->JamIstirahatKembali) {
-                    $istirahatMulai = Carbon::parse($absen->JamIstirahatMulai);
-                    $istirahatKembali = Carbon::parse($absen->JamIstirahatKembali);
-                    $totalDurasiIstirahatMenit = $istirahatKembali->diffInMinutes($istirahatMulai, true);
-                }
-
-                $jamKerjaBersihMenit = max(0, $totalDurasiKerjaMenit - $totalDurasiIstirahatMenit);
-                $jam = floor($jamKerjaBersihMenit / 60);
-                $menit = $jamKerjaBersihMenit % 60;
-                $jamKerjaFormatted = $jam . ' jam ' . $menit . ' menit';
-            } catch (\Exception $e) {
-                Log::error('Error parsing datetime for absensi ID: ' . ($absen->id ?? 'N/A') . ' - ' . $e->getMessage());
-                $jamKerjaFormatted = 'Error Hitung Jam Kerja';
+            $totalizer_backup = 0;
+            if ($absen) {
+                $totalizer_backup = BackupSession::where('AbsensiId', $absen->id)
+                    ->whereNotNull('TotalizerAkhir')
+                    ->sum(DB::raw('TotalizerAkhir - TotalizerAwal'));
             }
+
+            $insentif = ($totalizer_utama + $totalizer_backup) * 2.5;
+
+            // Hitung jam kerja
+            $jamKerjaFormatted = '-';
+            if ($absen && $absen->JamMasuk && $absen->JamPulang) {
+                try {
+                    $jamMasuk = Carbon::parse($absen->JamMasuk);
+                    $jamPulang = Carbon::parse($absen->JamPulang);
+                    $totalDurasiKerjaMenit = $jamPulang->diffInMinutes($jamMasuk, true);
+
+                    $totalDurasiIstirahatMenit = 0;
+                    if ($absen->JamIstirahatMulai && $absen->JamIstirahatKembali) {
+                        $istirahatMulai = Carbon::parse($absen->JamIstirahatMulai);
+                        $istirahatKembali = Carbon::parse($absen->JamIstirahatKembali);
+                        $totalDurasiIstirahatMenit = $istirahatKembali->diffInMinutes($istirahatMulai, true);
+                    }
+
+                    $jamKerjaBersihMenit = max(0, $totalDurasiKerjaMenit - $totalDurasiIstirahatMenit);
+                    $jam = floor($jamKerjaBersihMenit / 60);
+                    $menit = $jamKerjaBersihMenit % 60;
+                    $jamKerjaFormatted = $jam . ' jam ' . $menit . ' menit';
+                } catch (\Exception $e) {
+                    Log::error('Error parsing datetime for absensi ID: ' . ($absen->id ?? 'N/A') . ' - ' . $e->getMessage());
+                    $jamKerjaFormatted = 'Error Hitung Jam Kerja';
+                }
+            }
+
+            $rekap[] = [
+                'nama'             => $j->karyawan->Nama ?? '-',
+                'tanggal'          => $j->Tanggal,
+                'shift'            => ucfirst($j->Shift),
+                'status'           => $absen ? 'Hadir' : 'Tidak Hadir',
+                'jam_masuk'        => $absen && $absen->JamMasuk ? date('H:i:s', strtotime($absen->JamMasuk)) : '-',
+                'jam_istirahat'    => $absen && $absen->JamIstirahatMulai && $absen->JamIstirahatKembali ?
+                                      date('H:i:s', strtotime($absen->JamIstirahatMulai)) . ' - ' . date('H:i:s', strtotime($absen->JamIstirahatKembali)) : '-',
+                'jam_pulang'       => $absen && $absen->JamPulang ? date('H:i:s', strtotime($absen->JamPulang)) : '-',
+                'nozle'            => $absen && $absen->nozle ? $absen->nozle->NamaNozle : '-',
+                'produk'           => $absen && $absen->produk ? $absen->produk->NamaProduk : '-',
+                'totalizer_utama'  => $totalizer_utama,
+                'totalizer_backup' => $totalizer_backup,
+                'insentif'         => $insentif,
+                'jam_kerja'        => $jamKerjaFormatted,
+            ];
         }
 
-        // Push ke array
-        $rekap[] = [
-            'nama'             => $j->karyawan->Nama ?? '-',
-            'tanggal'          => $j->Tanggal,
-            'shift'            => ucfirst($j->Shift),
-            'status'           => $absen ? 'Hadir' : 'Tidak Hadir',
-            'jam_masuk'        => $absen && $absen->JamMasuk ? date('H:i:s', strtotime($absen->JamMasuk)) : '-',
-            'jam_istirahat'    => $absen && $absen->JamIstirahatMulai && $absen->JamIstirahatKembali ?
-                                  date('H:i:s', strtotime($absen->JamIstirahatMulai)) . ' - ' . date('H:i:s', strtotime($absen->JamIstirahatKembali)) : '-',
-            'jam_pulang'       => $absen && $absen->JamPulang ? date('H:i:s', strtotime($absen->JamPulang)) : '-',
-            'nozle'            => $absen && $absen->nozle ? $absen->nozle->NamaNozle : '-',
-            'produk'           => $absen && $absen->produk ? $absen->produk->NamaProduk : '-',
-            'totalizer_utama'  => $totalizer_utama,
-            'totalizer_backup' => $totalizer_backup,
-            'insentif'         => $insentif,
-            'jam_kerja'        => $jamKerjaFormatted,
-        ];
+        return view('rekapabsensi', compact('rekap', 'rekap_operator'));
     }
 
-    return view('rekapabsensi', compact('rekap', 'rekap_operator'));
-}
-
-
-
     public function ExportRekap()
-{
-    $nomorSpbu = Auth::user()->NomorSPBU;
-    return Excel::download(new AbsensiDetilExport($nomorSpbu), 'absensi_'.$nomorSpbu.'.xlsx');
-}
-
-
+    {
+        $nomorSpbu = Auth::user()->NomorSPBU;
+        $spbu = Spbu::where('NomorSPBU', $nomorSpbu)->first();
+        $namaspbu = $spbu && $spbu->Nama ? str_replace(' ', '_', strtolower($spbu->Nama)) : $nomorSpbu;
+        return Excel::download(new AbsensiDetilExport($nomorSpbu), 'absensi_'.$nomorSpbu.'.xlsx');
+    }
 }
 

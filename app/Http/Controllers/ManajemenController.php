@@ -7,6 +7,7 @@ use App\Models\Nozle;
 use App\Models\Produk;
 use App\Models\Pulau;
 use App\Models\Spbu;
+use App\Models\Tangki;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -49,9 +50,11 @@ class ManajemenController extends Controller
 
     $produk = Produk::all();
 
+    $tangki = Tangki::where('SpbuId', $SpbuId)->get();
+
     $pulau = Pulau::where('SpbuId', $SpbuId)->get();
 
-    return view('manajemen', compact('karyawan', 'nozle', 'produk', 'pulau', 'SpbuId'));
+    return view('manajemen', compact('karyawan', 'nozle', 'produk', 'pulau', 'SpbuId', 'tangki'));
 }
 
 

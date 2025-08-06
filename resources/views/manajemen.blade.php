@@ -181,6 +181,38 @@
             </tbody>
         </table>
     </div>
+    <div class="section-card">
+        <div class="section-title">
+            <img src="{{ asset('img/oil-truck.png') }}" alt="Tangki">
+            Manajemen Tangki
+        </div>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Nomor Tangki</th>
+                    <th>Produk</th>
+                    <th>Ukuran</th>
+                    <th>Jumlah Pulau</th>
+                    <th>Jumlah Dispenser</th>
+                    <th>Jumlah Nozzle</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                    @foreach($tangki as $t)
+                    <tr>
+                         <td>{{ $loop->iteration }}</td>
+                         <td>{{ $t->Produk }}</td>
+                         <td>{{ $t->Ukuran }}</td>
+                         <td>{{ $t->Pulau }}</td>
+                        <td>{{ $t->Dispenser }}</td>
+                        <td>{{ $t->Nozle }}</td>
+                             
+                    </tr>  
+                    @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @include('modals.tambahkaryawan')

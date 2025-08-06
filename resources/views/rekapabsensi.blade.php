@@ -4,7 +4,7 @@
 <div class="container mt-4">
     <div class="card">
         <div class="card-body">
-            <h3>Rekap Absensi Operator SPBU</h3>
+            <h3>Rekap Penugasan Operator SPBU</h3>
             <div class="mb-3">
                <a href="{{ url('/download-rekap') }}" class="btn btn-success">
                     Download Dokumen <i class="fa-solid fa-download"></i>
@@ -68,7 +68,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card mt-3">
         <div class="card-body">
             <h3>Rekap Kehadiran Per Operator</h3>
                 <table class="table table-bordered table-striped">
