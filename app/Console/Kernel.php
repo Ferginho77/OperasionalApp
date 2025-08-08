@@ -9,6 +9,6 @@ class Kernel extends ConsoleKernel
 {
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('absensi:get')->everyFiveMinutes();
+        $schedule->command('absensi:get')->everyMinute();
     }
 }
