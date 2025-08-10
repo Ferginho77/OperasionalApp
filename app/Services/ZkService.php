@@ -3,7 +3,7 @@
 namespace App\Services;
 
 // Ganti use ZKLib\ZKLib;
-use Rats\Zkteco\Lib\Zkteco;
+use Rats\Zkteco\Lib\ZKTeco;
 
 class ZkService
 {
@@ -12,7 +12,7 @@ class ZkService
     public function __construct($ipAddress, $port = 4370)
     {
         // Ganti new ZKLib(...) dengan new Zkteco(...)
-        $this->zk = new Zkteco($ipAddress, $port);
+        $this->zk = new ZKTeco($ipAddress, $port);
     }
 
     public function connect()

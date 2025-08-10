@@ -195,7 +195,7 @@
                     <th>Jumlah Pulau</th>
                     <th>Jumlah Dispenser</th>
                     <th>Jumlah Nozzle</th>
-                    <th>Aksi</th>
+                  
                 </tr>
             </thead>
             <tbody>
