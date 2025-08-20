@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string("NamaSPBU");
             $table->string("NomorSPBU")->unique();
             $table->string("Alamat");
-            $table->foreign('UserId')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('UserId')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
