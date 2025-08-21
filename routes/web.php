@@ -10,6 +10,7 @@ use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\AbsensiPdfController;
 use App\Exports\AbsensiExport;
+use App\Http\Controllers\FingerprintController;
 use Maatwebsite\Excel\Facades\Excel;
 
 // ===================
@@ -106,3 +107,10 @@ Route::middleware('auth')->group(function () {
 Route::get('/kehadiran', [KehadiranController::class, 'index'])->name('kehadiran')->middleware('auth');
 Route::get('/download-kehadiran-pdf', [AbsensiPdfController::class, 'kehadiran'])->name('kehadiran.pdf.download');
 Route::get('/download-kehadiran', [KehadiranController::class, 'downloadkehadiranXls'])->name('kehadiran.download.xls');
+
+
+// ===================
+// DIVASE MESIN FIGRPRING
+// ===================
+
+Route::get('/iclock/cdata', [FingerprintController::class, 'cdata']);
