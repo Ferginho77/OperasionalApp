@@ -77,7 +77,7 @@ class FingerprintController extends Controller
                     'KaryawanId'  => $karyawan->id,
                     'WaktuMasuk'  => $time,
                     'WaktuPulang' => null,
-                    'SpbuId'      => 2   // ganti sesuai kebutuhan
+                    'SpbuId'      => 5
                 ]);
             } else {
                 // Tap-out berikutnya
