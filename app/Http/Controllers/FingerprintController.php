@@ -2,92 +2,80 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Kehadiran;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class FingerprintController extends Controller
 {
+    // Simulasi storage sementara (offline-friendly)
+    protected static $lastSeen = null;
+    protected static $tapInToday = [];
+
+    // Fungsi untuk POST dari mesin (cdata)
     public function cdata(Request $request)
     {
         $snFromRequest = $request->input('SN');
         $snFromEnv     = env('CODE_MESIN');
 
-        // Simpan log request
-        $log = [
-            'sn'         => $snFromRequest,
-            'option'     => $request->input('option'),
-            'data'       => $request->getContent(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ];
-        DB::table('fingerprint_logs')->insert($log);   // contoh nama tabel log
-
         if ($snFromRequest !== $snFromEnv) {
+            Log::warning('SN tidak cocok', ['sn_request' => $snFromRequest]);
             return response()->json(['valid' => false]);
         }
 
         $lines = preg_split('/\r\n|\r|\n/', $request->getContent());
+        $tapInList = [];
+
         foreach ($lines as $line) {
-            if (empty(trim($line))) {
-                continue;
-            }
+            if (empty(trim($line))) continue;
 
             $data = explode("\t", trim($line));
-
-            // Kolom 0 = ID karyawan dari mesin fingerprint
             $employeeId = $data[0] ?? null;
             $timestamp  = $data[1] ?? null;
 
-            if (!$employeeId || !$timestamp) {
-                continue;
+            if (!$employeeId || !$timestamp) continue;
+
+            $today = date('Y-m-d', strtotime($timestamp));
+
+            if (!isset(self::$tapInToday[$today])) {
+                self::$tapInToday[$today] = [];
             }
 
-            $time  = Carbon::parse($timestamp);
-            $today = $time->format('Y-m-d');
-
-            // Pastikan ID karyawan ada di tabel `karyawans`
-            $karyawan = DB::table('karyawans')
-                          ->where('fingerprint_id', $employeeId)   // pastikan kolom ini ada
-                          ->first();
-
-            if (!$karyawan) {
-                continue;   // skip jika ID tidak dikenal
+            if (!in_array($employeeId, self::$tapInToday[$today])) {
+                self::$tapInToday[$today][] = $employeeId;
+                $tapInList[] = $employeeId;
             }
 
-            // Cek izin
-            $hasIzin = DB::table('izin')
-                          ->where('KaryawanId', $karyawan->id)
-                          ->whereDate('Tanggal', $today)
-                          ->exists();
-
-            if ($hasIzin) {
-                continue;
-            }
-
-            // Cek apakah sudah ada record kehadiran hari ini
-            $kehadiran = Kehadiran::where('KaryawanId', $karyawan->id)
-                                   ->whereDate('WaktuMasuk', $today)
-                                   ->first();
-
-            if (!$kehadiran) {
-                // Tap-in pertama
-                Kehadiran::create([
-                    'KaryawanId'  => $karyawan->id,
-                    'WaktuMasuk'  => $time,
-                    'WaktuPulang' => null,
-                    'SpbuId'      => 5
-                ]);
-            } else {
-                // Tap-out berikutnya
-                $kehadiran->update([
-                    'WaktuPulang' => $time
-                ]);
-            }
+            // Update last seen mesin
+            self::$lastSeen = $timestamp;
         }
 
-        // Tidak ada lagi auto-fill WaktuPulang
-        return response()->json(['valid' => true, 'message' => 'Data processed']);
+        Log::info('Data received from fingerprint', [
+            'sn' => $snFromRequest,
+            'tap_in_today' => $tapInList,
+            'last_seen' => self::$lastSeen
+        ]);
+
+        return response()->json([
+            'valid' => true,
+            'tap_in_today' => $tapInList,
+            'last_seen' => self::$lastSeen
+        ]);
+    }
+
+    // Fungsi GET untuk status mesin
+    public function status()
+    {
+        $status = 'offline';
+        if (self::$lastSeen) {
+            $lastSeenTime = strtotime(self::$lastSeen);
+            $now = time();
+            $status = ($now - $lastSeenTime <= 300) ? 'online' : 'offline'; // 5 menit dianggap online
+        }
+
+        return response()->json([
+            'machine_status' => $status,
+            'last_seen' => self::$lastSeen,
+            'tap_in_today' => self::$tapInToday[date('Y-m-d')] ?? []
+        ]);
     }
 }

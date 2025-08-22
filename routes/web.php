@@ -110,7 +110,8 @@ Route::get('/download-kehadiran', [KehadiranController::class, 'downloadkehadira
 
 
 // ===================
-// DIVASE MESIN FIGRPRING
+// DIVASE MESIN FINGERPRINT
 // ===================
 
-Route::get('/iclock/cdata', [FingerprintController::class, 'cdata']);
+Route::get('/iclock/status', [FingerprintController::class, 'status']);
+Route::post('/iclock/cdata', [FingerprintController::class, 'cdata']);
