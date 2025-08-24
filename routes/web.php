@@ -113,5 +113,11 @@ Route::get('/download-kehadiran', [KehadiranController::class, 'downloadkehadira
 // DIVASE MESIN FINGERPRINT
 // ===================
 
-Route::get('/iclock/status', [FingerprintController::class, 'status']);
-Route::post('/iclock/cdata', [FingerprintController::class, 'cdata']);
+Route::prefix('iclock')->group(function () {
+    Route::get('cdata',  [FingerprintController::class, 'handshake']);   // handshake
+    Route::get('getrequest',   [FingerprintController::class, 'getrequest']);  // dummy (bisa kosong)
+    Route::post('cdata',      [FingerprintController::class, 'cdata']);       // terima data
+});
+
+
+Route::get('status', [FingerprintController::class, 'status']); 
