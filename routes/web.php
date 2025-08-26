@@ -10,6 +10,7 @@ use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\AbsensiPdfController;
 use App\Exports\AbsensiExport;
+use App\Http\Controllers\FingerprintController;
 use Maatwebsite\Excel\Facades\Excel;
 
 // ===================
@@ -106,3 +107,17 @@ Route::middleware('auth')->group(function () {
 Route::get('/kehadiran', [KehadiranController::class, 'index'])->name('kehadiran')->middleware('auth');
 Route::get('/download-kehadiran-pdf', [AbsensiPdfController::class, 'kehadiran'])->name('kehadiran.pdf.download');
 Route::get('/download-kehadiran', [KehadiranController::class, 'downloadkehadiranXls'])->name('kehadiran.download.xls');
+
+
+// ===================
+// DIVASE MESIN FINGERPRINT
+// ===================
+
+Route::prefix('iclock')->group(function () {
+    Route::get('cdata',  [FingerprintController::class, 'handshake']);   // handshake
+    Route::get('getrequest',   [FingerprintController::class, 'getrequest']);  // dummy (bisa kosong)
+    Route::post('cdata',      [FingerprintController::class, 'cdata']);       // terima data
+});
+
+
+Route::get('status', [FingerprintController::class, 'status']); 

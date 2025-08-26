@@ -39,3 +39,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route baru untuk mengambil data absensi dari mesin ZKTeco
 Route::get('/{uid}/{id_mesin}', [KehadiranApiController::class, 'getAbsensi']);
 
+
