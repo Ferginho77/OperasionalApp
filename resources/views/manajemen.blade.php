@@ -33,6 +33,7 @@
             <thead>
                 <tr>
                     <th>Nama</th>
+                    <th>ID FIngerPrint</th>
                     <th>NIK</th>
                     <th>CV</th>
                     <th>Data Pribadi</th>
@@ -42,56 +43,61 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($karyawan as $k)
-                <tr>
-                    <td>{{ $k->Nama }}</td>
-                    <td>{{ $k->Nip }}</td>
-                    <td>
-                        @if($k->Cv)
-                            <a href="{{ asset('storage/'.$k->Cv) }}" target="_blank" class="btn btn-sm btn-outline-info">Lihat CV</a>
-                        @else
-                            <span class="text-muted">-</span>
-                        @endif
-                    </td>
-                    <td>
-                        @if($k->FilePribadi)
-                            <a href="{{ asset('storage/'.$k->FilePribadi) }}" target="_blank" class="btn btn-sm btn-outline-info">Lihat File</a>
-                        @else
-                            <span class="text-muted">-</span>
-                        @endif
-                    </td>
-                    <td>{{ $k->Role }}</td>
-                    <td>
-                        @if($k->Status == 'Aktif')
-                            <span class="fs-6 badge bg-success">Aktif</span>
-                        @elseif($k->Status == 'PHK')
-                            <span class="fs-6 badge bg-danger">PHK</span>
-                        @elseif($k->Status == 'Resign')
-                            <span class="fs-6 badge bg-dark">Resign</span>    
-                        @elseif($k->Status == 'SP')
-                            <span class="fs-6 badge bg-warning text-dark">SP</span>    
-                            @else
-                            <span class="fs-6 badge bg-secondary">NonAktif</span>
-                        @endif
-                    <td>
-                        <button class="btn btn-primary btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#EditModal"
-                            data-id="{{ $k->id }}"
-                            data-nama="{{ $k->Nama }}"
-                            data-role="{{ $k->Role }}"
-                            data-nip="{{ $k->Nip }}"
-                            data-cv="{{ $k->Cv }}"
-                            data-filepribadi="{{ $k->FilePribadi }}"
-                        >Edit</button>
-                        <form action="{{ route('karyawan.destroy', $k->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin ingin menghapus karyawan ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-sm btn-danger">Hapus</button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
+              @foreach($karyawan as $k)
+<tr>
+    <td>{{ $k->Nama }}</td>
+    <td>{{ $k->id ?? '-' }}</td>
+    <td>{{ $k->Nip }}</td>
+    <td>
+        @if($k->Cv)
+            <a href="{{ asset('storage/'.$k->Cv) }}" target="_blank" class="btn btn-sm btn-outline-info">Lihat CV</a>
+        @else
+            <span class="text-muted">-</span>
+        @endif
+    </td>
+    <td>
+        @if($k->FilePribadi)
+            <a href="{{ asset('storage/'.$k->FilePribadi) }}" target="_blank" class="btn btn-sm btn-outline-info">Lihat File</a>
+        @else
+            <span class="text-muted">-</span>
+        @endif
+    </td>
+    <td>{{ $k->Role }}</td>
+    <td>
+        @if($k->Status == 'Aktif')
+            <span class="fs-6 badge bg-success">Aktif</span>
+        @elseif($k->Status == 'PHK')
+            <span class="fs-6 badge bg-danger">PHK</span>
+        @elseif($k->Status == 'Resign')
+            <span class="fs-6 badge bg-dark">Resign</span>    
+        @elseif($k->Status == 'SP')
+            <span class="fs-6 badge bg-warning text-dark">SP</span>    
+        @else
+            <span class="fs-6 badge bg-secondary">NonAktif</span>
+        @endif
+    </td>
+    <td>
+        <button class="btn btn-primary btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#EditModal"
+            data-id="{{ $k->id }}"
+            data-nama="{{ $k->Nama }}"
+            data-role="{{ $k->Role }}"
+            data-nip="{{ $k->Nip }}"
+            data-cv="{{ $k->Cv }}"
+            data-filepribadi="{{ $k->FilePribadi }}"
+            data-status="{{ $k->Status }}"
+        >Edit</button>
+
+        <form action="{{ route('karyawan.destroy', $k->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin ingin menghapus karyawan ini?')">
+            @csrf
+            @method('DELETE')
+            <button class="btn btn-sm btn-danger">Hapus</button>
+        </form>
+    </td>
+</tr>
+@endforeach
+
             </tbody>
         </table>
     </div>

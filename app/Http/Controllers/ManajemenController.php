@@ -10,6 +10,7 @@ use App\Models\Spbu;
 use App\Models\Tangki;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ManajemenController extends Controller
 {
@@ -67,7 +68,7 @@ class ManajemenController extends Controller
         'Nip' => 'required|string|max:20',
         'Cv' => 'nullable|file|mimes:pdf|max:2048',
         'FilePribadi' => 'nullable|file|mimes:pdf|max:2048',
-        'Status' => 'required|in:aktif,nonaktif',
+        'Status' => 'required|in:Aktif,NonAktif',
     ]);
 
     $nomorSpbu = Auth::user()->NomorSPBU;
@@ -108,7 +109,7 @@ class ManajemenController extends Controller
         'Role' => 'required|string|max:50',
         'Cv' => 'nullable|file|mimes:pdf|max:2048',
         'FilePribadi' => 'nullable|file|mimes:pdf|max:2048',
-        'Status' => 'required|in:aktif,nonaktif',
+        'Status' => 'required|in:Aktif,NonAktif,PHK,Resign,SP',
     ]);
 
     $data = [
@@ -118,22 +119,35 @@ class ManajemenController extends Controller
         'Status' => $request->Status,
     ];
 
-    // Jika ada file CV baru
+    // Update CV hanya jika ada file baru
     if ($request->hasFile('Cv')) {
-        $CvOriginalName = $request->file('Cv')->getClientOriginalName();
-        $data['Cv'] = $request->file('Cv')->storeAs('Cv', $CvOriginalName, 'public');
+        if ($karyawan->Cv && Storage::disk('public')->exists($karyawan->Cv)) {
+            Storage::disk('public')->delete($karyawan->Cv);
+        }
+        $data['Cv'] = $request->file('Cv')->storeAs(
+            'Cv',
+            $request->file('Cv')->getClientOriginalName(),
+            'public'
+        );
     }
 
-    // Jika ada file FilePribadi baru
+    // Update FilePribadi hanya jika ada file baru
     if ($request->hasFile('FilePribadi')) {
-        $filePribadiOriginalName = $request->file('FilePribadi')->getClientOriginalName();
-        $data['FilePribadi'] = $request->file('FilePribadi')->storeAs('FilePribadi', $filePribadiOriginalName, 'public');
+        if ($karyawan->FilePribadi && Storage::disk('public')->exists($karyawan->FilePribadi)) {
+            Storage::disk('public')->delete($karyawan->FilePribadi);
+        }
+        $data['FilePribadi'] = $request->file('FilePribadi')->storeAs(
+            'FilePribadi',
+            $request->file('FilePribadi')->getClientOriginalName(),
+            'public'
+        );
     }
 
     $karyawan->update($data);
 
     return redirect()->route('manajemen')->with('success', 'Karyawan berhasil diperbarui.');
 }
+
 
     public function EditProduk(Request $request){
     $produk = Produk::findOrFail($request->id);
