@@ -3,10 +3,6 @@
 @section('title', 'Manajemen Data')
 
 @section('content')
-<style>
-  
-
-</style>
 <div class="container mt-4">
 
 <div class="section-card">
@@ -34,6 +30,7 @@
                 <tr>
                     <th>Nama</th>
                     <th>NIK</th>
+                    <th>ID figerprint</th>
                     <th>CV</th>
                     <th>Data Pribadi</th>
                     <th>Jabatan</th>
@@ -46,6 +43,7 @@
                 <tr>
                     <td>{{ $k->Nama }}</td>
                     <td>{{ $k->Nip }}</td>
+                    <td>{{ $k->id }}</td>
                     <td>
                         @if($k->Cv)
                             <a href="{{ asset('storage/'.$k->Cv) }}" target="_blank" class="btn btn-sm btn-outline-info">Lihat CV</a>
