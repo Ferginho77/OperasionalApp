@@ -203,7 +203,7 @@ class FingerprintController extends Controller
     }
 
     /* ----------------------------------------------------------
-     *  5) UTILITAS
+     *  5) UTILITAS UPDATE
      * ---------------------------------------------------------- */
     private function toInt($value)
     {
