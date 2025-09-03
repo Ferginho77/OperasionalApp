@@ -3,10 +3,6 @@
 @section('title', 'Manajemen Data')
 
 @section('content')
-<style>
-  
-
-</style>
 <div class="container mt-4">
 
 <div class="section-card">
