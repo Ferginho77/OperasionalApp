@@ -27,6 +27,7 @@ class FingerprintController extends Controller
             'updated_at' => now(),
         ]);
 
+        // Update atau insert device berdasarkan SN
         DB::table('devices')->updateOrInsert(
             ['no_sn' => $request->input('SN')],
             ['online' => now()]
@@ -63,11 +64,13 @@ class FingerprintController extends Controller
         ]);
 
         $snFromRequest = $request->input('SN');
-        $snFromEnv = env('CODE_MESIN');
 
-        if ($snFromRequest !== $snFromEnv) {
-            Log::warning('[CDATA] SN mismatch');
-            return response("ERROR: SN mismatch\n", 400);
+        // Cari SPBU berdasarkan kode mesin (SN)
+        $spbu = Spbu::where('code_mesin', $snFromRequest)->first();
+
+        if (!$spbu) {
+            Log::warning("[CDATA] SPBU dengan code_mesin $snFromRequest tidak ditemukan");
+            return response("ERROR: SPBU not found\n", 400);
         }
 
         $arr = preg_split('/\r\n|\r|\n/', $request->getContent());
@@ -108,26 +111,29 @@ class FingerprintController extends Controller
                 $status     = $row['status1'];
                 $timestamp  = $row['timestamp'];
 
-                $karyawan = Karyawan::find($employeeId);
+                // Cari karyawan berdasarkan ID dan pastikan dia berada di SPBU yang benar
+                $karyawan = Karyawan::where('id', $employeeId)
+                                    ->where('NomorSPBU', $spbu->NomorSPBU)
+                                    ->first();
+
                 if (!$karyawan) {
-                    Log::warning("[SKIP] Karyawan ID $employeeId not found");
+                    Log::warning("[SKIP] Karyawan ID $employeeId tidak ditemukan di SPBU {$spbu->NomorSPBU}");
                     continue;
                 }
-
-                $spbu = Spbu::where('NomorSPBU', $karyawan->NomorSPBU)->first();
 
                 if ($status === 0) {
                     $kehadiran = Kehadiran::create([
                         'KaryawanId'  => $karyawan->id,
                         'WaktuMasuk'  => $timestamp,
                         'WaktuPulang' => null,
-                        'SpbuId'      => $spbu?->id,
+                        'SpbuId'      => $spbu->id,
                         'created_at'  => now(),
                         'updated_at'  => now(),
                     ]);
-                    Log::info("[CREATE] Kehadiran ID: {$kehadiran->id} untuk Karyawan ID: {$karyawan->id}");
+                    Log::info("[CREATE] Kehadiran ID: {$kehadiran->id} untuk Karyawan ID: {$karyawan->id} di SPBU {$spbu->NomorSPBU}");
                 } elseif ($status === 1) {
                     $last = Kehadiran::where('KaryawanId', $karyawan->id)
+                                     ->where('SpbuId', $spbu->id)
                                      ->whereNull('WaktuPulang')
                                      ->latest('WaktuMasuk')
                                      ->first();
@@ -137,9 +143,9 @@ class FingerprintController extends Controller
                             'WaktuPulang' => $timestamp,
                             'updated_at'  => now(),
                         ]);
-                        Log::info("[UPDATE] Kehadiran ID: {$last->id} WaktuPulang diupdate");
+                        Log::info("[UPDATE] Kehadiran ID: {$last->id} WaktuPulang diupdate untuk Karyawan ID: {$karyawan->id}");
                     } else {
-                        Log::info("[SKIP] Tidak ada record masuk untuk Karyawan ID: {$karyawan->id}");
+                        Log::info("[SKIP] Tidak ada record masuk untuk Karyawan ID: {$karyawan->id} di SPBU {$spbu->NomorSPBU}");
                     }
                 }
             } catch (\Exception $e) {
@@ -167,23 +173,33 @@ class FingerprintController extends Controller
      * ---------------------------------------------------------- */
     public function status()
     {
-        $device = DB::table('devices')->where('no_sn', env('CODE_MESIN'))->first();
+        $devices = DB::table('devices')->get();
 
-        $lastSeen = optional($device)->online;
-        $status = $lastSeen && now()->diffInMinutes($lastSeen) <= 5 ? 'online' : 'offline';
+        $statusData = [];
+        foreach ($devices as $device) {
+            $lastSeen = $device->online;
+            $status = $lastSeen && now()->diffInMinutes($lastSeen) <= 5 ? 'online' : 'offline';
 
-        $tapInToday = DB::table('attendances')
-            ->whereDate('timestamp', today())
-            ->pluck('employee_id')
-            ->unique()
-            ->values()
-            ->toArray();
+            $spbu = Spbu::where('code_mesin', $device->no_sn)->first();
 
-        return response()->json([
-            'machine_status' => $status,
-            'last_seen'      => $lastSeen,
-            'tap_in_today'   => $tapInToday,
-        ]);
+            $tapInToday = DB::table('attendances')
+                ->where('sn', $device->no_sn)
+                ->whereDate('timestamp', today())
+                ->pluck('employee_id')
+                ->unique()
+                ->values()
+                ->toArray();
+
+            $statusData[] = [
+                'sn' => $device->no_sn,
+                'spbu' => $spbu ? $spbu->NomorSPBU : 'Unknown',
+                'machine_status' => $status,
+                'last_seen' => $lastSeen,
+                'tap_in_today' => $tapInToday,
+            ];
+        }
+
+        return response()->json($statusData);
     }
 
     /* ----------------------------------------------------------
