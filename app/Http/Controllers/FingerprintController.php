@@ -12,7 +12,7 @@ use App\Models\Kehadiran;
 class FingerprintController extends Controller
 {
     /* ----------------------------------------------------------
-     *  1) HANDSHAKE – balas konfigurasi push mesin 
+     *  1) HANDSHAKE – balas konfigurasi push mesin test
      * ---------------------------------------------------------- */
     public function handshake(Request $request)
     {
