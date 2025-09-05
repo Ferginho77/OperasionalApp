@@ -101,6 +101,8 @@ class ManajemenController extends Controller
 
     public function UpdateKaryawan(Request $request)
 {
+
+    
     $karyawan = Karyawan::findOrFail($request->id);
 
     $request->validate([
@@ -111,6 +113,7 @@ class ManajemenController extends Controller
         'FilePribadi' => 'nullable|file|mimes:pdf|max:2048',
         'Status' => 'required|in:Aktif,NonAktif,PHK,Resign,SP',
     ]);
+
 
     $data = [
         'Nama' => $request->Nama,

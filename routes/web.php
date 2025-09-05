@@ -78,7 +78,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/nozle/{id}', [ManajemenController::class, 'destroyNozle'])->name('nozle.destroy');
     Route::post('/edit/produk', [ManajemenController::class, 'EditProduk'])->name('produk.edit');
 });
-
 // ===================
 // OWNER
 // ===================
