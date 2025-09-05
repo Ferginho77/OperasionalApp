@@ -29,6 +29,7 @@
             <thead>
                 <tr>
                     <th>Nama</th>
+                    <th>ID FIngerPrint</th>
                     <th>NIK</th>
                     <th>ID Fingreprint</th>
                     <th>CV</th>
@@ -43,7 +44,6 @@
                 <tr>
                     <td>{{ $k->Nama }}</td>
                     <td>{{ $k->Nip }}</td>
-                    <td>{{ $k->id }}</td>
                     <td>
                         @if($k->Cv)
                             <a href="{{ asset('storage/'.$k->Cv) }}" target="_blank" class="btn btn-sm btn-outline-info">Lihat CV</a>
