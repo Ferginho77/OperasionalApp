@@ -9,6 +9,7 @@ use App\Models\Karyawan;
 use App\Models\Spbu;
 use App\Models\Kehadiran;
 
+
 class FingerprintController extends Controller
 {
     /* ----------------------------------------------------------
