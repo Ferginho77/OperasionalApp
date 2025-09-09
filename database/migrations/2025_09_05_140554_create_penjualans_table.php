@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('penjualan', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('SpbuId'); // Tambahkan SpbuId
             $table->unsignedBigInteger('NozzelId');
             $table->unsignedBigInteger('PulauId');
             $table->unsignedBigInteger('ProdukId');
@@ -22,7 +23,8 @@ return new class extends Migration
             $table->decimal('JumlahRupiah', 18, 2)->default(0);
             $table->timestamps();
 
-            // relasi (optional, kalau memang ada tabel terkait)
+            // Foreign keys
+            $table->foreign('SpbuId')->references('id')->on('spbu')->onDelete('cascade');
             $table->foreign('NozzelId')->references('id')->on('nozle')->onDelete('cascade');
             $table->foreign('PulauId')->references('id')->on('pulau')->onDelete('cascade');
             $table->foreign('ProdukId')->references('id')->on('produk')->onDelete('cascade');

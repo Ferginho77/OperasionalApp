@@ -10,6 +10,7 @@ class Penjualan extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
+        'SpbuId', // Tambahkan SpbuId
         'NozzelId',
         'PulauId',
         'ProdukId',
@@ -18,6 +19,12 @@ class Penjualan extends Model
         'Jumlah',
         'JumlahRupiah',
     ];
+
+    // Relasi ke tabel SPBU
+    public function spbu()
+    {
+        return $this->belongsTo(Spbu::class, 'SpbuId');
+    }
 
     // Relasi ke tabel Nozle
     public function nozle()
