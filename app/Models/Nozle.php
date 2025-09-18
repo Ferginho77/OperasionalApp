@@ -23,4 +23,9 @@ class Nozle extends Model
         return $this->belongsTo(Pulau::class, 'PulauId', 'id');
     }
 
+     public function penjualan()
+    {
+        return $this->hasMany(Penjualan::class, 'NozzelId');
+    }
+
 }
