@@ -265,4 +265,14 @@ class PenjualanController extends Controller
 
         return redirect()->route('penjualan.index')->with('success', 'Data penjualan berhasil diperbarui');
     }
+
+    public function editJson($id)
+    {
+        $penjualan = Penjualan::with(['nozle', 'pulau', 'produk'])->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $penjualan,
+        ]);
+    }
 }
