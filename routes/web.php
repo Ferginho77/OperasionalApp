@@ -107,10 +107,7 @@ Route::get('/penjualan', [PenjualanController::class, 'index'])->name('penjualan
 Route::post('/penjualan/store', [PenjualanController::class, 'store'])->name('penjualan.store');
 Route::get('/penjualan/generate-laporan', [PenjualanController::class, 'generateLaporan'])->name('penjualan.generateLaporan');
 Route::put('/penjualan/{id}', [PenjualanController::class, 'update'])->name('penjualan.update');
-Route::get('/penjualan/{id}/edit', function ($id) {
-    $penjualan = Penjualan::with(['nozle', 'pulau', 'produk'])->findOrFail($id);
-    return response()->json($penjualan);
-})->name('penjualan.edit_json');
+Route::get('/penjualan/{id}/edit', [PenjualanController::class, 'editJson'])->name('penjualan.edit_json');
 
 // ===================
 // KEHADIRAN
